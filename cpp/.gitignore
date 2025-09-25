@@ -1,0 +1,6 @@
+.idea/
+**/CMakeFiles/
+
+*.lock
+**/Makefile
+**/cmake_install.cmake
