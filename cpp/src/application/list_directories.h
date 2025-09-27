@@ -6,8 +6,8 @@ namespace nautix::application {
 
     class ListDirectories {
     public:
-        // Executa o caso de uso a partir de um diretório origem
-        std::vector<domain::Directory> execute(
+        // Run the use case from a source directory
+        [[nodiscard]] std::vector<domain::Directory> execute(
             const domain::Directory& root) const;
     };
 

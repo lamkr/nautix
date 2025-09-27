@@ -8,7 +8,6 @@ namespace nautix::application {
 
     std::vector<Directory> ListDirectories::execute(const Directory& root) const {
         std::vector<Directory> result;
-
         try {
             if (!fs::exists(root.path()) || !fs::is_directory(root.path())) {
                 return result; // diretório inválido → retorna vazio
@@ -16,7 +15,8 @@ namespace nautix::application {
 
             for (const auto& entry : fs::directory_iterator(root.path())) {
                 if (entry.is_directory()) {
-                    result.emplace_back(entry.path().string());
+                    //result.emplace_back(entry.path().string());
+                    result.emplace_back(entry.path());
                 }
             }
         } catch (const fs::filesystem_error&) {

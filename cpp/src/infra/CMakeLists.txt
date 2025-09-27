@@ -1,0 +1,1 @@
+# add_library(infra OBJECT <arquivos cpp>)

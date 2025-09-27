@@ -7,7 +7,10 @@
 #include <filesystem>
 #include <fstream>
 
-// Helper para criar um ambiente temporário de teste
+using namespace nautix::domain;
+using namespace nautix::application;
+
+// Helper to create temporary test environment.
 struct TempDir {
     std::filesystem::path path;
 
@@ -22,41 +25,35 @@ struct TempDir {
     }
 };
 
-TEST_CASE("Listar subdiretórios a partir de um diretório raiz") {
-    using namespace nautix::domain;
-    using namespace nautix::application;
-
+TEST_CASE("List subdirectories of a directory") {
     TempDir tmp;
 
-    // Criar subdiretórios
+    // Create subdirectories
     auto sub1 = tmp.path / "subdir1";
     auto sub2 = tmp.path / "subdir2";
     std::filesystem::create_directory(sub1);
     std::filesystem::create_directory(sub2);
 
-    // Criar um arquivo (não deve aparecer na listagem de diretórios)
+    // Create a file (should not appear in the directory listing)
     std::ofstream(tmp.path / "arquivo.txt").put('a');
 
-    Directory root(tmp.path.string());
+    Directory dir(tmp.path.string());
     ListDirectories useCase;
 
-    auto result = useCase.execute(root);
+    auto result = useCase.execute(dir);
 
     REQUIRE(result.size() == 2);
     REQUIRE((result[0].path() == sub1.string() || result[0].path() == sub2.string()));
     REQUIRE((result[1].path() == sub1.string() || result[1].path() == sub2.string()));
 }
 
-TEST_CASE("Diretório sem subdiretórios deve retornar lista vazia") {
-    using namespace nautix::domain;
-    using namespace nautix::application;
+TEST_CASE("Directory without subdirectories should return empty list") {
+    const TempDir tmp;
 
-    TempDir tmp;
+    const Directory root(tmp.path.string());
+    constexpr ListDirectories useCase;
 
-    Directory root(tmp.path.string());
-    ListDirectories useCase;
-
-    auto result = useCase.execute(root);
+    const auto result = useCase.execute(root);
 
     REQUIRE(result.empty());
 }

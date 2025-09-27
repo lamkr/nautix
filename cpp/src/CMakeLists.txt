@@ -1,10 +1,18 @@
-# Biblioteca principal do projeto
-add_library(nautix_core
-    domain/file.cpp
-    domain/directory.cpp
-    application/list_directories.cpp
-    # outras implementações
+add_subdirectory(application)
+add_subdirectory(domain)
+add_subdirectory(infra)
+add_subdirectory(ui)
+
+add_executable(nautix
+    $<TARGET_OBJECTS:application>
+    $<TARGET_OBJECTS:domain>
+    #$<TARGET_OBJECTS:infra>
+    #$<TARGET_OBJECTS:ui>
+    main.cpp
 )
 
-target_include_directories(nautix_core
-    PUBLIC ${PROJECT_SOURCE_DIR}/include)
+# Biblioteca principal do projeto
+add_library(nautix_core
+    $<TARGET_OBJECTS:application>
+    $<TARGET_OBJECTS:domain>
+)
