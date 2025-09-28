@@ -7,6 +7,8 @@
 #include <filesystem>
 #include <optional>
 
+#include "fs.h"
+
 namespace nautix::domain {
 
     namespace fs = std::filesystem;
@@ -39,6 +41,16 @@ namespace nautix::domain {
             return Directory(fs::temp_directory_path());
         }();
         return temp_dir_singleton;
+    }
+
+    [[nodiscard]] const Directory& Directory::from_directory_entry(fs::directory_entry& directory_entry) {
+        return Directory(
+            directory_entry.path(),
+            to_local_time(get_creation_time(directory_entry.path())),
+            to_local_time(get_modification_time(directory_entry.path())),
+            to_local_time(get_access_time(directory_entry.path())),
+            get_owner(directory_entry.path())
+        );
     }
 
     const fs::path& Directory::path() const noexcept {

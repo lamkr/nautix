@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <filesystem>
@@ -47,7 +48,7 @@ int main2() {
     return 0;
 }
 
-int main()
+int main1()
 {
     nautix::application::ListDirectories useCase;
 
@@ -57,4 +58,34 @@ int main()
     {
         std::cout << "📂 " << dir.path() << "\n";
     }
+    return 0;
+}
+
+using namespace std::chrono;
+
+int main() {
+    // 1. Create a utc_time point
+    // Example: January 1, 2025, 12:00:00 UTC
+    auto utc_tp = std::chrono::sys_days{2025y/1/1} + 12h;
+
+    // 2. Get the local time zone
+    // current_zone() returns a pointer to the current system's time zone.
+
+    const std::chrono::time_zone* local_tz = std::chrono::current_zone();//->to_local(utc_tp);
+
+    // 3. Create a zoned_time object
+    // This object associates the utc_time with the local time zone.
+    std::chrono::zoned_time zt{local_tz, utc_tp};
+
+    // 4. Access the local_time from the zoned_time
+    // The local_time is a time_point in the local_t type,
+    // representing the time in the specified time zone.
+    std::chrono::local_time<std::chrono::system_clock::duration> local_tp = zt.get_local_time();
+
+    // Optional: Format and print the results
+    std::cout << "UTC Time: " << utc_tp << std::endl;
+    std::cout << "Local Time: " << zt << std::endl; // zoned_time formats automatically to local time
+    std::cout << "Local Time (explicit access): " << local_tp << std::endl;
+
+    return 0;
 }
