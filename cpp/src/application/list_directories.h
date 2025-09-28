@@ -1,14 +1,18 @@
 #pragma once
 #include <vector>
-#include "../domain/directory.h"
+#include "directory.h"
+#include "sort_order.h"
 
 namespace nautix::application {
+
+    using namespace nautix::domain;
 
     class ListDirectories {
     public:
         // Run the use case from a source directory
-        [[nodiscard]] std::vector<domain::Directory> execute(
-            const domain::Directory& root) const;
+        [[nodiscard]] std::vector<Directory> execute(
+            const Directory& root,
+            SortOrder order = SortOrder::None
+        ) const;
     };
-
 } // namespace nautix::application

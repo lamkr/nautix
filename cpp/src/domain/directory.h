@@ -9,6 +9,7 @@ namespace nautix::domain {
     class Directory {
     public:
         [[nodiscard]] static const std::optional<Directory>& home();
+        [[nodiscard]] static const std::optional<Directory>& temp();
 
         /**
          * @brief Construtor universal que aceita qualquer tipo que possa construir

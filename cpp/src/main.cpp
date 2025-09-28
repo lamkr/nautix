@@ -4,11 +4,13 @@
 #include <utility>
 
 #include "directory.h"
+#include "list_directories.h"
 
+using namespace nautix::application;
 using namespace nautix::domain;
 
 // --- Exemplo de Uso Abrangente ---
-int main() {
+int main2() {
     // 1. De um literal de ‘string’ (const char*). Nenhuma ‘std::string’ temporária é criada.
     Directory d1("/home/user/music");
     std::cout << "1. De const char*: " << d1.path() << std::endl;
@@ -45,7 +47,7 @@ int main() {
     return 0;
 }
 
-/*int main()
+int main()
 {
     nautix::application::ListDirectories useCase;
 
@@ -56,4 +58,3 @@ int main() {
         std::cout << "📂 " << dir.path() << "\n";
     }
 }
-*/

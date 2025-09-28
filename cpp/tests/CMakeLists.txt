@@ -10,6 +10,7 @@ FetchContent_MakeAvailable(catch2)
 # Teste do ListDirectories
 add_executable(test_list_directories
     application/test_list_directories.cpp
+        domain/test_directory.cpp
 )
 
 target_include_directories(test_list_directories
