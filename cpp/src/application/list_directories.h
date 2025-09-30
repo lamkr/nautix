@@ -5,14 +5,16 @@
 
 namespace nautix::application {
 
-    using namespace nautix::domain;
-
     class ListDirectories {
     public:
-        // Run the use case from a source directory
-        [[nodiscard]] std::vector<Directory> execute(
-            const Directory& root,
+        [[nodiscard]] std::vector<domain::Directory> execute(
+            const std::string&& existing_path,
+            SortOrder order = SortOrder::None
+        ) const;
+
+        [[nodiscard]] std::vector<domain::Directory> execute(
+            const domain::Directory& directory,
             SortOrder order = SortOrder::None
         ) const;
     };
-} // namespace nautix::application
+}

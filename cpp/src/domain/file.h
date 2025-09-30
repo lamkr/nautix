@@ -20,4 +20,4 @@ namespace nautix::domain {
         std::chrono::system_clock::time_point _modified;
     };
 
-} // namespace nautix::domain
+}

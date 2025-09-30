@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <iostream>
 #include "fs.h"
+#include <pwd.h>
 
 // Define __NR_statx if not already defined (might be needed for older headers)
 #ifndef __NR_statx
@@ -17,8 +18,38 @@
 #endif
 #endif
 
+const auto UNKNOWN_OWNER_NAME = "<unknown>";
+
+chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> get_creation_time(
+    const struct stat& stat) {
+    const chrono::system_clock::time_point time = chrono::system_clock::from_time_t(stat.st_ctim.tv_sec) +
+        chrono::nanoseconds(stat.st_ctim.tv_nsec);
+    return to_local_time( time );
+}
+
+chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> get_modification_time(
+    const struct stat& stat) {
+    const chrono::system_clock::time_point time = chrono::system_clock::from_time_t(stat.st_mtim.tv_sec) +
+        chrono::nanoseconds(stat.st_mtim.tv_nsec);
+    return to_local_time( time );
+}
+
+chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> get_access_time(
+    const struct stat& stat) {
+    const chrono::system_clock::time_point time = chrono::system_clock::from_time_t(stat.st_atim.tv_sec) +
+        chrono::nanoseconds(stat.st_atim.tv_nsec);
+    return to_local_time( time );
+}
+
+std::string get_owner_name(const struct stat& stat) {
+    if (const passwd* pw = getpwuid(stat.st_uid); pw != nullptr) {
+        return pw->pw_name;
+    }
+    return UNKNOWN_OWNER_NAME;
+}
+
 chrono::system_clock::time_point get_creation_time_legacy(const fs::path& path) {
-    struct stat stat_dir;
+    struct stat stat_dir{};
     if (stat(path.c_str(), &stat_dir) == 0) {
         return chrono::system_clock::from_time_t(stat_dir.st_ctim.tv_sec) +
             chrono::nanoseconds(stat_dir.st_ctim.tv_nsec);
@@ -26,17 +57,16 @@ chrono::system_clock::time_point get_creation_time_legacy(const fs::path& path) 
     return get_modification_time(path);
 }
 
-// Function to get the creation time of a directory using statx
 chrono::system_clock::time_point get_creation_time(const std::filesystem::path& path) {
-    struct statx stat_dir;
-    const int descriptor = AT_FDCWD;
-    const unsigned int flags = AT_SYMLINK_NOFOLLOW; // Don't follow symlinks
-    const unsigned int mask = STATX_BTIME; // Request birth time
+    struct statx stat{};
+    constexpr int descriptor = AT_FDCWD;
+    constexpr unsigned int flags = AT_SYMLINK_NOFOLLOW; // Don't follow symlinks
+    constexpr unsigned int mask = STATX_BTIME; // Request birth time
 
-    if (syscall(__NR_statx, descriptor, path.c_str(), flags, mask, &stat_dir) == 0) {
+    if (syscall(__NR_statx, descriptor, path.c_str(), flags, mask, &stat) == 0) {
         // Convert timespec to chrono::system_clock::time_point
-        return chrono::system_clock::from_time_t(stat_dir.stx_btime.tv_sec) +
-            chrono::nanoseconds(stat_dir.stx_btime.tv_nsec);
+        return chrono::system_clock::from_time_t(stat.stx_btime.tv_sec) +
+            chrono::nanoseconds(stat.stx_btime.tv_nsec);
     }
     return get_creation_time_legacy(path);
 }
@@ -47,7 +77,7 @@ chrono::system_clock::time_point get_modification_time(const fs::path& path) {
 }
 
 chrono::system_clock::time_point get_access_time(const fs::path& path) {
-    struct stat stat_dir;
+    struct stat stat_dir{};
     if (stat(path.c_str(), &stat_dir) == 0) {
         return chrono::system_clock::from_time_t(stat_dir.st_atim.tv_sec) +
             chrono::nanoseconds(stat_dir.st_atim.tv_nsec);
@@ -55,20 +85,45 @@ chrono::system_clock::time_point get_access_time(const fs::path& path) {
     return chrono::system_clock::from_time_t(time_t{});
 }
 
-__uid_t get_owner(const fs::path& path) {
-    struct stat stat_dir;
+__uid_t get_owner_id(const fs::path& path) {
+    struct stat stat_dir{};
     if (stat(path.c_str(), &stat_dir) == 0) {
         return stat_dir.st_uid;
     }
     return 0;
 }
 
-chrono::local_time<std::chrono::system_clock::duration> to_local_time(chrono::system_clock::time_point time_point) {
+std::string get_owner_name(__uid_t owner_id) {
+    if (const passwd* pw = getpwuid(owner_id); pw != nullptr) {
+        return pw->pw_name;
+    }
+    return UNKNOWN_OWNER_NAME;
+}
+
+std::optional<fs::path> get_home_path() noexcept {
+    if (const char* home_path = std::getenv("HOME")) {
+        return fs::path(home_path);
+    }
+    // Fallback to POSIX systems.
+    if (const passwd* pw = getpwuid(getuid())) {
+        return fs::path(pw->pw_dir);
+    }
+    return std::nullopt;
+}
+
+std::uintmax_t compute_directory_size(const fs::path& path) {
+    std::error_code error;
+    const std::uintmax_t size = fs::file_size(path, error);
+    return !error ? size : 0; // TODO compute dir size;
+}
+
+chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> to_local_time(
+    chrono::system_clock::time_point time_point) {
     // Get the local time zone.
     const std::chrono::time_zone* local_tz = std::chrono::current_zone();
     // Create a zoned_time object.
     // This object associates the utc_time with the local time zone.
-    chrono::zoned_time zt{local_tz, time_point};
+    const chrono::zoned_time zt{local_tz, time_point};
     // Access the local_time from the zoned_time
     // The local_time is a time_point in the local_t type,
     // representing the time in the specified time zone.
@@ -99,12 +154,12 @@ std::string getTimeISO8601(chrono::system_clock::time_point time_point) {
     return oss.str();
 }
 
-void showInfo(const fs::path& path, int what) {
-    chrono::system_clock::time_point creationTime = get_creation_time(path);
-    chrono::system_clock::time_point modificationTime = get_modification_time(path);
-    chrono::system_clock::time_point accessTime = get_access_time(path);
+void showInfo(const fs::path& path, const int what) {
+    const chrono::system_clock::time_point creationTime = get_creation_time(path);
+    const chrono::system_clock::time_point modificationTime = get_modification_time(path);
+    const chrono::system_clock::time_point accessTime = get_access_time(path);
 
-    __uid_t owner = get_owner(path);
+    const __uid_t owner = get_owner_id(path);
 
     chrono::system_clock::time_point theTime;
     if (what == 'C') {
@@ -122,18 +177,16 @@ void showInfo(const fs::path& path, int what) {
         << std::endl;
 }
 
-void show(std::vector<nautix::domain::Directory> vect, int what) {
+void show_dirs(std::vector<domain::Directory>& vect, int what) {
     std::cout << "result: " << std::endl;
-    for (unsigned long x = 0; x < vect.size(); ++x) {
-        auto dir = vect[x];
+    for (const auto& dir : vect) {
         showInfo(dir.path(), what);
     }
 }
 
-void show(std::vector<fs::directory_entry> vect, int what) {
+void show_entries(std::vector<fs::directory_entry>& vect, int what) {
     std::cout << "dirs: " << std::endl;
-    for (unsigned long x = 0; x < vect.size(); ++x) {
-        auto dir = vect[x];
+    for (const auto& dir : vect) {
         showInfo(dir.path(), what);
     }
 }

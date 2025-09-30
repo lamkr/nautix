@@ -16,3 +16,7 @@
   
   ./tests/test_list_directories
 ```
+
+
+## Requeriments
+- libstdc++ >= 23 (or clang/llvm with support)

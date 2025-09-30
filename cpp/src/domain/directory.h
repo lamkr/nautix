@@ -1,40 +1,45 @@
 #pragma once
+
+#include <chrono>
 #include <filesystem>
-#include <vector>
 #include "file.h"
-#include <type_traits>
 
 namespace nautix::domain {
 
     namespace chrono = std::chrono;
     namespace fs = std::filesystem;
 
-    class Directory {
+    class Directory
+    {
+        const fs::path path_;
+        const std::string name_;
+        const uintmax_t size_;
+        const __uid_t owner_id_;
+        const chrono::local_time<chrono::system_clock::duration> creation_time_;
+        const chrono::local_time<chrono::system_clock::duration> modification_time_;
+        const chrono::local_time<chrono::system_clock::duration> access_time_;
+
+        std::vector<File> files_;
+
     public:
-        [[nodiscard]] static const std::optional<Directory>& home();
+        [[nodiscard]] static std::optional<Directory> home();
+        [[nodiscard]] static std::optional<Directory> temp();
+        [[nodiscard]] static std::optional<Directory> from_existing(const std::string& path);
 
-        [[nodiscard]] static const std::optional<Directory>& temp();
+        [[nodiscard]] const fs::path& path() const noexcept { return path_; }
+        [[nodiscard]] const std::string& name() const noexcept { return name_; }
+        [[nodiscard]] uintmax_t size() const noexcept { return size_; }
+        [[nodiscard]] __uid_t owner_id() const noexcept { return owner_id_; }
+        // Em Linux, creation time (birthtime) não é portable; st_birthtime existe em alguns FS/OS,
+        // mas em Linux frequentemente não está disponível. O código atual usa fallback st_ctime.
+        [[nodiscard]] const chrono::local_time<chrono::system_clock::duration>& creation_time() const noexcept { return creation_time_; }
+        [[nodiscard]] const chrono::local_time<chrono::system_clock::duration>& modification_time() const noexcept { return modification_time_; }
+        [[nodiscard]] const chrono::local_time<chrono::system_clock::duration>& access_time() const noexcept { return access_time_; }
+        [[nodiscard]] std::string get_owner_name() const noexcept;
 
-        [[nodiscard]] static const Directory& from_directory_entry(fs::directory_entry& directory_entry);
+        [[nodiscard]] const std::vector<File>& files() const noexcept;
+        void add_file(File file);
 
-        const chrono::local_time<chrono::system_clock::duration> creation_time;
-
-        const chrono::local_time<chrono::system_clock::duration> modification_time;
-
-        const chrono::local_time<chrono::system_clock::duration> access_time;
-
-        const __uid_t owner_id;
-
-        /**
-         * @brief Construtor universal que aceita qualquer tipo que possa construir
-         * um std::filesystem::path de forma performática.
-         * * @tparam PathType O tipo do argumento do caminho (deduzido automaticamente).
-         * @param path_param O parâmetro do caminho, passado como uma referência de
-         * encaminhamento (forwarding reference).
-         * @param creation_time
-         * @param modification_time
-         * @param access_time
-         */
         template <typename PathType>
             // C++20 Concept: Garante que este construtor só seja habilitado para
             // tipos que podem construir um std::filesystem::path e que não seja
@@ -45,27 +50,31 @@ namespace nautix::domain {
             )
         explicit Directory(
             PathType&& path_param,
-            chrono::local_time<chrono::system_clock::duration>&& creation_time,
-            chrono::local_time<chrono::system_clock::duration>&& modification_time,
-            chrono::local_time<chrono::system_clock::duration>&& access_time,
-            __uid_t owner_id
+            std::string&& name,
+            const uintmax_t size,
+            const __uid_t owner_id,
+            chrono::local_time<chrono::system_clock::duration> creation_time,
+            chrono::local_time<chrono::system_clock::duration> modification_time,
+            chrono::local_time<chrono::system_clock::duration> access_time
             )
-            : creation_time(std::forward<chrono::local_time<chrono::system_clock::duration>>(creation_time))
-            , modification_time{modification_time}
-            , access_time{access_time}
-            , owner_id(owner_id)
-            , _path(std::forward<PathType>(path_param))
+            : path_(std::forward<PathType>(path_param))
+            , name_(std::forward<std::string>(name))
+            , size_(size)
+            , owner_id_(owner_id)
+            , creation_time_(std::forward<chrono::local_time<chrono::system_clock::duration>>(creation_time))
+            , modification_time_(std::forward<chrono::local_time<chrono::system_clock::duration>>(modification_time))
+            , access_time_(std::forward<chrono::local_time<chrono::system_clock::duration>>(access_time))
         {}
+    };
 
-        [[nodiscard]] const std::filesystem::path& path() const noexcept;
-
-        [[nodiscard]] const std::vector<File>& files() const noexcept;
-
-        void add_file(File file);
-
-    private:
-        std::filesystem::path _path;
-        std::vector<File> _files;
+    struct DirectoryInfo {
+        fs::path path;
+        std::string name;
+        std::uintmax_t size{};
+        uid_t owner_id{};
+        chrono::local_time<std::chrono::system_clock::duration> modification_time;
+        chrono::local_time<std::chrono::system_clock::duration> creation_time;
+        chrono::local_time<std::chrono::system_clock::duration> access_time;
     };
 
 }

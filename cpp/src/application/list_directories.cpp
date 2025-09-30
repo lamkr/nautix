@@ -2,110 +2,77 @@
 #include <filesystem>
 #include <algorithm>
 #include <chrono>
-#include <system_error>
 #include <format>
 #include "list_directories.h"
-#include "fs.h"
+#include "../core/fs.h"
+#include <sys/stat.h>
 
 namespace nautix::application {
-    using namespace nautix::domain;
     namespace fs = std::filesystem;
     namespace chrono = std::chrono;
 
-    std::vector<Directory> ListDirectories::execute(const Directory& root, SortOrder order) const {
-        std::vector<fs::directory_entry> dirs;
-        std::vector<Directory> result;
-        int what = 0;
-        try {
-            if (!fs::exists(root.path()) || !fs::is_directory(root.path())) {
-                return result;
-            }
+    std::vector<domain::Directory> ListDirectories::execute(const std::string&& existing_path, const SortOrder order) const {
+        std::optional<domain::Directory> directory = domain::Directory::from_existing(existing_path);
+        if (directory.has_value()) {
+            return execute(*directory, order);
+        }
+        return {};
+    }
 
-            for (const fs::directory_entry& entry : fs::directory_iterator(root.path())) {
-                if (entry.is_directory()) {
-                    dirs.emplace_back(entry);
+    std::vector<domain::Directory> ListDirectories::execute(const domain::Directory& directory, const SortOrder order) const {
+        std::vector<domain::Directory> result;
+        std::vector<domain::DirectoryInfo> infos;
+
+        for (const fs::directory_entry& entry : fs::directory_iterator(directory.path())) {
+            if (!entry.is_directory())
+                continue;
+            domain::DirectoryInfo info;
+            info.path = entry.path();
+            info.name = entry.path().filename().string();
+            struct stat st{};
+            if (stat(info.path.c_str(), &st) == 0) {
+                info.size = compute_directory_size(info.path);
+                info.modification_time = get_creation_time(st);
+                info.creation_time = get_modification_time(st);
+                info.access_time = get_access_time(st);
+                info.owner_id = st.st_uid;
+            }
+            infos.push_back(std::move(info));
+        }
+
+        std::ranges::sort(infos,
+            [order](const domain::DirectoryInfo& a, const domain::DirectoryInfo& b) {
+                using enum SortOrder;
+                switch (order) {
+                    case BySize:
+                        return a.size < b.size;
+                    case ByOwner:
+                        return a.owner_id < b.owner_id;
+                    case ByCreationDate:
+                        return a.creation_time < b.creation_time;
+                    case ByModificationDate:
+                        return a.modification_time < b.modification_time;
+                    case ByAccessDate:
+                        return a.access_time < b.access_time;
+                    case ByName:
+                    case None:
+                    default:
+                        return a.name < b.name;
                 }
-            }
+            });
 
-            switch (order) {
-                    using enum SortOrder;
-
-                case ByName:
-                    std::ranges::sort(dirs,
-                        [](const fs::directory_entry& a, const fs::directory_entry& b) {
-                            return a.path() < b.path();
-                        });
-                    break;
-
-                case ByCreationDate:
-                    what = 'C';
-                    std::ranges::sort(dirs,
-                        [](const fs::directory_entry& a, const fs::directory_entry& b) {
-                            chrono::system_clock::time_point timeA = get_creation_time(a.path());
-                            chrono::system_clock::time_point timeB = get_creation_time(b.path());
-                            return timeA < timeB;
-                        });
-                    break;
-
-                case ByModificationDate:
-                    what = 'M';
-                    std::ranges::sort(dirs,
-                        [](const fs::directory_entry& a, const fs::directory_entry& b) {
-                            const auto timeA = get_modification_time(a);
-                            const auto timeB = get_modification_time(b);
-                            return timeA < timeB;
-                        });
-                    break;
-
-                case ByAccessDate:
-                    what = 'A';
-                    std::ranges::sort(dirs,
-                        [](const fs::directory_entry& a, const fs::directory_entry& b) {
-                            const auto timeA = get_access_time(a);
-                            const auto timeB = get_access_time(b);
-                            return timeA < timeB;
-                        });
-                    break;
-
-                case BySize:
-                    std::ranges::sort(dirs,
-                        [](const fs::directory_entry& a, const fs::directory_entry& b) {
-                            std::uintmax_t sizeA = 0, sizeB = 0;
-                            std::error_code errorA, errorB;
-                            sizeA = fs::file_size(a, errorA);
-                            sizeB = fs::file_size(b, errorB);
-                            return !(errorA && errorB) ? sizeA < sizeB : false;
-                        });
-                    break;
-
-                case ByOwner:
-                    std::ranges::sort(dirs,
-                        [](const fs::directory_entry& a, const fs::directory_entry& b) {
-                            struct stat statA{}, statB{};
-                            if (stat(a.path().c_str(), &statA) != 0)
-                                return false;
-                            if (stat(b.path().c_str(), &statB) != 0)
-                                return true;
-                            return statA.st_uid < statB.st_uid;
-                        });
-                    break;
-
-                case None:
-                default:
-                    break;
-            }
-        }
-        catch (const fs::filesystem_error&) {
-            // Em TDD: ainda não tratamos erros específicos
-        }
-
-        show(dirs, what);
-
-        for (const fs::directory_entry& entry : dirs) {
-            result.push_back(Directory(entry));
-        }
-
-        show(result, what);
+        std::ranges::transform(infos,
+            std::back_inserter(result),
+            [](domain::DirectoryInfo& info) {
+                return domain::Directory(
+                    info.path,
+                    std::move(info.name),
+                    info.size,
+                    info.owner_id,
+                    info.creation_time,
+                    info.modification_time,
+                    info.access_time);
+            });
 
         return result;
     }

@@ -23,4 +23,4 @@ namespace nautix::domain {
         return _modified;
     }
 
-} // namespace nautix::domain
+}

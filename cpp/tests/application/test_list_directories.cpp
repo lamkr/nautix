@@ -9,21 +9,22 @@
 #include <chrono>
 #include <thread>
 
-using namespace nautix::domain;
-using namespace nautix::application;
+namespace fs = std::filesystem;
+namespace domain = nautix::domain;
+namespace app = nautix::application;
 
 // Helper to create temporary test environment.
 struct TempDir {
-    std::filesystem::path path;
+    fs::path path;
 
     TempDir() {
-        path = std::filesystem::temp_directory_path() /
-               std::filesystem::path("nautix_test_" + std::to_string(::getpid()));
-        std::filesystem::create_directory(path);
+        path = fs::temp_directory_path() /
+               fs::path("nautix_test_" + std::to_string(::getpid()));
+        fs::create_directory(path);
     }
 
     ~TempDir() {
-        std::filesystem::remove_all(path);
+        fs::remove_all(path);
     }
 };
 
@@ -33,16 +34,15 @@ TEST_CASE("List subdirectories of a directory") {
     // Create subdirectories
     const auto sub1 = tmp.path / "subdir1";
     const auto sub2 = tmp.path / "subdir2";
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub2);
+    fs::create_directory(sub1);
+    fs::create_directory(sub2);
 
     // Create a file (should not appear in the directory listing)
     std::ofstream(tmp.path / "arquivo.txt").put('a');
 
-    const Directory dir(tmp.path.string());
-    constexpr ListDirectories useCase;
+    constexpr app::ListDirectories useCase;
 
-    const auto result = useCase.execute(dir);
+    const auto result = useCase.execute(tmp.path);
 
     REQUIRE(result.size() == 2);
     REQUIRE((result[0].path() == sub1.string() || result[0].path() == sub2.string()));
@@ -51,11 +51,8 @@ TEST_CASE("List subdirectories of a directory") {
 
 TEST_CASE("Directory without subdirectories should return empty list") {
     const TempDir tmp;
-
-    const Directory root(tmp.path.string());
-    constexpr ListDirectories useCase;
-
-    const auto result = useCase.execute(root);
+    constexpr app::ListDirectories useCase;
+    const auto result = useCase.execute(tmp.path.string());
 
     REQUIRE(result.empty());
 }
@@ -69,15 +66,14 @@ TEST_CASE("List directories sorted by name") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub2);
-    std::filesystem::create_directory(sub3);
-    std::filesystem::create_directory(sub4);
+    fs::create_directory(sub1);
+    fs::create_directory(sub2);
+    fs::create_directory(sub3);
+    fs::create_directory(sub4);
 
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
+    constexpr app::ListDirectories useCase;
 
-    const auto result = useCase.execute(dir, SortOrder::ByName);
+    const auto result = useCase.execute(tmp.path, app::SortOrder::ByName);
 
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].path() == sub1.string());
@@ -95,18 +91,17 @@ TEST_CASE("List directories sorted by creation date") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub2);
+    fs::create_directory(sub2);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub1);
+    fs::create_directory(sub1);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub4);
+    fs::create_directory(sub4);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub3);
+    fs::create_directory(sub3);
 
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
+    constexpr app::ListDirectories useCase;
 
-    const auto result = useCase.execute(dir, SortOrder::ByCreationDate);
+    const auto result = useCase.execute(tmp.path, app::SortOrder::ByCreationDate);
 
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].path() == sub2.string());
@@ -124,18 +119,17 @@ TEST_CASE("List directories sorted by modification date") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub2);
+    fs::create_directory(sub2);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub1);
+    fs::create_directory(sub1);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub4);
+    fs::create_directory(sub4);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub3);
+    fs::create_directory(sub3);
 
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
+    constexpr app::ListDirectories useCase;
 
-    const auto result = useCase.execute(dir, SortOrder::ByModificationDate);
+    const auto result = useCase.execute(tmp.path, app::SortOrder::ByModificationDate);
 
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].path() == sub2.string());
@@ -153,18 +147,17 @@ TEST_CASE("List directories sorted by access date") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub2);
+    fs::create_directory(sub2);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub1);
+    fs::create_directory(sub1);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub4);
+    fs::create_directory(sub4);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub3);
+    fs::create_directory(sub3);
 
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
+    constexpr app::ListDirectories useCase;
 
-    const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
+    const auto result = useCase.execute(tmp.path, app::SortOrder::ByAccessDate);
 
     REQUIRE(result.size() == 4);
     REQUIRE(result[0].path() == sub2.string());
@@ -182,8 +175,8 @@ TEST_CASE("List directories sorted by owner") {
     const auto sub1 = tmp.path / "abc";
     const auto sub4 = tmp.path / "xyw";
 
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub4);
+    fs::create_directory(sub1);
+    fs::create_directory(sub4);
     const Directory dir(tmp.path);
     constexpr ListDirectories useCase;
 
@@ -205,8 +198,8 @@ TEST_CASE("List directories sorted by owner") {
     const auto sub1 = tmp.path / "abc";
     const auto sub4 = tmp.path / "xyw";
 
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub4);
+    fs::create_directory(sub1);
+    fs::create_directory(sub4);
     const Directory dir(tmp.path);
     constexpr ListDirectories useCase;
 
