@@ -11,26 +11,27 @@ namespace nautix::application {
     namespace chrono = std::chrono;
 
     ListDirectories::ListDirectories(IDirectoryMetadataProvider& provider)
-        : provider_(provider) {}
+        : provider_(provider) {
+    }
 
     std::expected<std::vector<domain::Directory>, std::error_code> ListDirectories::execute(
-        const std::string& existing_path, const SortOrder order ) const
-    {
+        const std::string& existing_path, const SortOrder order) const {
         return execute(existing_path.c_str(), order);
     }
 
     std::expected<std::vector<domain::Directory>, std::error_code> ListDirectories::execute(const char* existing_path,
-        const SortOrder order) const
-    {
+        const SortOrder order) const {
         std::vector<DirectoryMetadata> metadatas;
 
         for (const fs::directory_entry& entry : fs::directory_iterator(existing_path)) {
-            std::expected<DirectoryMetadata, std::error_code> metadata =
-                provider_.get_metadata(entry.path().c_str());
-            if (!metadata.has_value()) {
-                return std::unexpected(metadata.error());
+            if (entry.is_directory()) {
+                std::expected<DirectoryMetadata, std::error_code> metadata =
+                    provider_.get_metadata(entry.path().c_str());
+                if (!metadata.has_value()) {
+                    return std::unexpected(metadata.error());
+                }
+                metadatas.push_back(*metadata);
             }
-            metadatas.push_back(*metadata);
         }
 
         std::ranges::sort(metadatas,
