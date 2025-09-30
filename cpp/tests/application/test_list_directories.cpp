@@ -31,8 +31,6 @@ struct TempDir {
     }
 };
 
-app::IDirectoryMetadataProvider *provider = new infra::SystemMetadataProvider();
-
 TEST_CASE("List subdirectories of a directory") {
     const TempDir tmp;
 
@@ -45,7 +43,8 @@ TEST_CASE("List subdirectories of a directory") {
     // Create a file (should not appear in the directory listing)
     std::ofstream(tmp.path / "arquivo.txt").put('a');
 
-    const app::ListDirectories useCase(*provider);
+    infra::SystemMetadataProvider provider;
+    const app::ListDirectories useCase(provider);
 
     const auto result = useCase.execute(tmp.path);
 
@@ -57,7 +56,9 @@ TEST_CASE("List subdirectories of a directory") {
 
 TEST_CASE("Directory without subdirectories should return empty list") {
     const TempDir tmp;
-    const app::ListDirectories useCase(*provider);
+    infra::SystemMetadataProvider provider;
+    const app::ListDirectories useCase(provider);
+
     const auto result = useCase.execute(tmp.path.string());
 
     REQUIRE(result.has_value());
@@ -78,7 +79,8 @@ TEST_CASE("List directories sorted by name") {
     fs::create_directory(sub3);
     fs::create_directory(sub4);
 
-    const app::ListDirectories useCase(*provider);
+    infra::SystemMetadataProvider provider;
+    const app::ListDirectories useCase(provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByName);
 
@@ -107,7 +109,8 @@ TEST_CASE("List directories sorted by creation date") {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     fs::create_directory(sub3);
 
-    const app::ListDirectories useCase(*provider);
+    infra::SystemMetadataProvider provider;
+    const app::ListDirectories useCase(provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByCreationDate);
 
@@ -136,7 +139,8 @@ TEST_CASE("List directories sorted by modification date") {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     fs::create_directory(sub3);
 
-    const app::ListDirectories useCase(*provider);
+    infra::SystemMetadataProvider provider;
+    const app::ListDirectories useCase(provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByModificationDate);
 
@@ -165,7 +169,8 @@ TEST_CASE("List directories sorted by access date") {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     fs::create_directory(sub3);
 
-    const app::ListDirectories useCase(*provider);
+    infra::SystemMetadataProvider provider;
+    const app::ListDirectories useCase(provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByAccessDate);
 
