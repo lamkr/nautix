@@ -13,7 +13,7 @@ int main1()
 {
     constexpr ListDirectories useCase;
 
-    for (const auto subdirs = useCase.execute(Directory::home().value()); const auto& dir : subdirs)
+    for (const auto subdirs = useCase.execute(TODO); const auto& dir : subdirs)
     {
         std::cout << "📂 " << dir.path() << std::endl;
     }
@@ -50,7 +50,7 @@ int main0() {
 }
 
 int main() {
-    const std::optional<Directory>& dir = Directory::home();
+    const std::optional<Directory>& dir = Directory::home(TODO);
 
     std::cout << "d.p1=" << &dir->path() << ":" << dir->path() << std::endl;
     fs::path path = dir->path();

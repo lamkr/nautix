@@ -2,19 +2,22 @@
 #include <vector>
 #include "directory.h"
 #include "sort_order.h"
+#include "directory_metadata_provider.h"
 
 namespace nautix::application {
 
     class ListDirectories {
+        const IDirectoryMetadataProvider& provider_;
     public:
-        [[nodiscard]] std::vector<domain::Directory> execute(
-            const std::string&& existing_path,
+        explicit ListDirectories(IDirectoryMetadataProvider& provider);
+
+        [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code> execute(
+            const std::string& existing_path,
             SortOrder order = SortOrder::None
         ) const;
 
-        [[nodiscard]] std::vector<domain::Directory> execute(
-            const domain::Directory& directory,
-            SortOrder order = SortOrder::None
+        [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code> execute(
+            const char* existing_path, SortOrder order = SortOrder::None
         ) const;
     };
 }

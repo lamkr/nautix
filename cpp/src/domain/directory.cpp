@@ -1,48 +1,48 @@
-#include <sys/stat.h>
+#include "directory_metadata_provider.h"
 #include "../core/std.h"
 #include "../core/fs.h"
 
 namespace nautix::domain {
 
-    STATIC std::optional<Directory> Directory::from_existing(const std::string& existing_path) {
-        if (!fs::exists(existing_path) || !fs::is_directory(existing_path))
-            return {};
-
-        const fs::path path = existing_path;
-        struct stat st{};
-        if (stat(path.c_str(), &st))
-            return {};
-
-        return domain::Directory(
-            path,
-            path.filename().string(),
-            compute_directory_size(path),
-            st.st_uid,
-            get_creation_time(st),
-            get_modification_time(st),
-            get_access_time(st)
+    STATIC Directory Directory::from_metadata(const application::DirectoryMetadata&& metadata) {
+        return Directory(
+            std::move(metadata.path),
+            std::move(metadata.name.data()),
+            metadata.size,
+            metadata.owner_id,
+            std::move(metadata.creation_time),
+            std::move(metadata.modification_time),
+            std::move(metadata.access_time)
         );
     }
 
-    STATIC std::optional<Directory> Directory::home() {
-        static const auto home_dir_singleton = []() -> std::optional<Directory> {
-            if (const auto path = get_home_path()) {
-                return from_existing(path->string());
+    STATIC std::expected<Directory, std::error_code> Directory::home(const application::IDirectoryMetadataProvider& provider) {
+        const std::expected<const char*, std::error_code> path = get_home_path();
+        if (path.has_value()) {
+            std::expected<application::DirectoryMetadata, std::error_code> metadata =
+                provider.get_metadata(*path);
+            if (metadata.has_value()) {
+                return from_metadata(std::move(metadata.value()));
             }
-            return std::nullopt;
-        }();
-        return home_dir_singleton;
+            return std::unexpected(metadata.error());
+        }
+        return std::unexpected(path.error());
     }
 
-    STATIC std::optional<Directory> Directory::temp() {
-        static const auto temp_dir_singleton = []() -> std::optional<Directory> {
-            const fs::path temp_path = fs::temp_directory_path();
-            return from_existing(temp_path.string());
-        }();
-        return temp_dir_singleton;
+    STATIC std::expected<Directory, std::error_code> Directory::temp(const application::IDirectoryMetadataProvider& provider) {
+        const std::expected<fs::path, std::error_code> path = fs::temp_directory_path();
+        if (path.has_value()) {
+            std::expected<application::DirectoryMetadata, std::error_code> metadata =
+                provider.get_metadata(path->c_str());
+            if (metadata.has_value()) {
+                return from_metadata(std::move(metadata.value()));
+            }
+            return std::unexpected(metadata.error());
+        }
+        return std::unexpected(path.error());
     }
 
-    std::string Directory::get_owner_name() const noexcept {
+    std::expected<std::string, std::error_code> Directory::get_owner_name() const noexcept {
         return ::get_owner_name(owner_id_);
     }
 

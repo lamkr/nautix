@@ -13,6 +13,9 @@ add_executable(test_list_directories
         domain/test_directory.cpp
 )
 
+target_compile_options(test_list_directories PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+target_link_options(test_list_directories PRIVATE -fsanitize=address,undefined)
+
 target_include_directories(test_list_directories
     PRIVATE ${PROJECT_SOURCE_DIR}/src
     PRIVATE ${catch2_SOURCE_DIR}/single_include

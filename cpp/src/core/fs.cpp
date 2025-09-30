@@ -3,38 +3,29 @@
 #include <unistd.h>
 #include <iostream>
 #include "fs.h"
+
+#include <expected>
 #include <pwd.h>
 
-// Define __NR_statx if not already defined (might be needed for older headers)
-#ifndef __NR_statx
-#if defined(__x86_64__)
-#define __NR_statx 332
-#elif defined(__i386__)
-#define __NR_statx 383
-#elif defined(__aarch64__)
-#define __NR_statx 291
-#else
-#error "Unsupported architecture for statx system call"
-#endif
-#endif
+#include "errors.h"
 
 const auto UNKNOWN_OWNER_NAME = "<unknown>";
 
-chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> get_creation_time(
+chrono::time_point<chrono::local_t, chrono::duration<long, std::nano>> get_creation_time(
     const struct stat& stat) {
     const chrono::system_clock::time_point time = chrono::system_clock::from_time_t(stat.st_ctim.tv_sec) +
         chrono::nanoseconds(stat.st_ctim.tv_nsec);
     return to_local_time( time );
 }
 
-chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> get_modification_time(
+chrono::time_point<chrono::local_t, chrono::duration<long, std::nano>> get_modification_time(
     const struct stat& stat) {
     const chrono::system_clock::time_point time = chrono::system_clock::from_time_t(stat.st_mtim.tv_sec) +
         chrono::nanoseconds(stat.st_mtim.tv_nsec);
     return to_local_time( time );
 }
 
-chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> get_access_time(
+chrono::time_point<chrono::local_t, chrono::duration<long, std::nano>> get_access_time(
     const struct stat& stat) {
     const chrono::system_clock::time_point time = chrono::system_clock::from_time_t(stat.st_atim.tv_sec) +
         chrono::nanoseconds(stat.st_atim.tv_nsec);
@@ -85,7 +76,7 @@ chrono::system_clock::time_point get_access_time(const fs::path& path) {
     return chrono::system_clock::from_time_t(time_t{});
 }
 
-__uid_t get_owner_id(const fs::path& path) {
+uid_t get_owner_id(const fs::path& path) {
     struct stat stat_dir{};
     if (stat(path.c_str(), &stat_dir) == 0) {
         return stat_dir.st_uid;
@@ -93,22 +84,26 @@ __uid_t get_owner_id(const fs::path& path) {
     return 0;
 }
 
-std::string get_owner_name(__uid_t owner_id) {
+std::expected<std::string, std::error_code> get_owner_name(uid_t owner_id) {
+    errno = 0;
     if (const passwd* pw = getpwuid(owner_id); pw != nullptr) {
         return pw->pw_name;
     }
-    return UNKNOWN_OWNER_NAME;
+    if (errno != 0) {
+        return std::unexpected(std::error_code(errno, std::generic_category()));
+    }
+    return std::unexpected(nautix_error::user_not_found);
 }
 
-std::optional<fs::path> get_home_path() noexcept {
+std::expected<const char*, std::error_code> get_home_path() noexcept {
     if (const char* home_path = std::getenv("HOME")) {
-        return fs::path(home_path);
+        return home_path;
     }
     // Fallback to POSIX systems.
     if (const passwd* pw = getpwuid(getuid())) {
-        return fs::path(pw->pw_dir);
+        return pw->pw_dir;
     }
-    return std::nullopt;
+    return std::unexpected(std::make_error_code(std::errc::function_not_supported));
 }
 
 std::uintmax_t compute_directory_size(const fs::path& path) {
@@ -117,7 +112,7 @@ std::uintmax_t compute_directory_size(const fs::path& path) {
     return !error ? size : 0; // TODO compute dir size;
 }
 
-chrono::time_point<chrono::local_t, chrono::duration<long, std::ratio<1, 1000000000>>> to_local_time(
+chrono::time_point<chrono::local_t, chrono::duration<long, std::nano>> to_local_time(
     chrono::system_clock::time_point time_point) {
     // Get the local time zone.
     const std::chrono::time_zone* local_tz = std::chrono::current_zone();
@@ -159,7 +154,7 @@ void showInfo(const fs::path& path, const int what) {
     const chrono::system_clock::time_point modificationTime = get_modification_time(path);
     const chrono::system_clock::time_point accessTime = get_access_time(path);
 
-    const __uid_t owner = get_owner_id(path);
+    const uid_t owner = get_owner_id(path);
 
     chrono::system_clock::time_point theTime;
     if (what == 'C') {
@@ -177,16 +172,16 @@ void showInfo(const fs::path& path, const int what) {
         << std::endl;
 }
 
-void show_dirs(std::vector<domain::Directory>& vect, int what) {
+void show_dirs(const std::vector<domain::Directory>& vector, int what) {
     std::cout << "result: " << std::endl;
-    for (const auto& dir : vect) {
+    for (const auto& dir : vector) {
         showInfo(dir.path(), what);
     }
 }
 
-void show_entries(std::vector<fs::directory_entry>& vect, int what) {
+void show_entries(const std::vector<fs::directory_entry>& vector, int what) {
     std::cout << "dirs: " << std::endl;
-    for (const auto& dir : vect) {
+    for (const auto& dir : vector) {
         showInfo(dir.path(), what);
     }
 }

@@ -9,9 +9,12 @@
 #include <chrono>
 #include <thread>
 
+#include "system_metadata_provider.h"
+
 namespace fs = std::filesystem;
 namespace domain = nautix::domain;
 namespace app = nautix::application;
+namespace infra = nautix::infra;
 
 // Helper to create temporary test environment.
 struct TempDir {
@@ -28,6 +31,8 @@ struct TempDir {
     }
 };
 
+app::IDirectoryMetadataProvider *provider = new infra::SystemMetadataProvider();
+
 TEST_CASE("List subdirectories of a directory") {
     const TempDir tmp;
 
@@ -40,21 +45,23 @@ TEST_CASE("List subdirectories of a directory") {
     // Create a file (should not appear in the directory listing)
     std::ofstream(tmp.path / "arquivo.txt").put('a');
 
-    constexpr app::ListDirectories useCase;
+    const app::ListDirectories useCase(*provider);
 
     const auto result = useCase.execute(tmp.path);
 
-    REQUIRE(result.size() == 2);
-    REQUIRE((result[0].path() == sub1.string() || result[0].path() == sub2.string()));
-    REQUIRE((result[1].path() == sub1.string() || result[1].path() == sub2.string()));
+    REQUIRE(result.has_value());
+    REQUIRE(result->size() == 2);
+    REQUIRE((result.value()[0].path() == sub1.string() || result.value()[0].path() == sub2.string()));
+    REQUIRE((result.value()[1].path() == sub1.string() || result.value()[1].path() == sub2.string()));
 }
 
 TEST_CASE("Directory without subdirectories should return empty list") {
     const TempDir tmp;
-    constexpr app::ListDirectories useCase;
+    const app::ListDirectories useCase(*provider);
     const auto result = useCase.execute(tmp.path.string());
 
-    REQUIRE(result.empty());
+    REQUIRE(result.has_value());
+    REQUIRE(result->empty());
 }
 
 TEST_CASE("List directories sorted by name") {
@@ -71,15 +78,16 @@ TEST_CASE("List directories sorted by name") {
     fs::create_directory(sub3);
     fs::create_directory(sub4);
 
-    constexpr app::ListDirectories useCase;
+    const app::ListDirectories useCase(*provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByName);
 
-    REQUIRE(result.size() == 4);
-    REQUIRE(result[0].path() == sub1.string());
-    REQUIRE(result[1].path() == sub2.string());
-    REQUIRE(result[2].path() == sub3.string());
-    REQUIRE(result[3].path() == sub4.string());
+    REQUIRE(result.has_value());
+    REQUIRE(result->size() == 4);
+    REQUIRE(result.value()[0].path() == sub1.string());
+    REQUIRE(result.value()[1].path() == sub2.string());
+    REQUIRE(result.value()[2].path() == sub3.string());
+    REQUIRE(result.value()[3].path() == sub4.string());
 }
 
 TEST_CASE("List directories sorted by creation date") {
@@ -99,15 +107,16 @@ TEST_CASE("List directories sorted by creation date") {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     fs::create_directory(sub3);
 
-    constexpr app::ListDirectories useCase;
+    const app::ListDirectories useCase(*provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByCreationDate);
 
-    REQUIRE(result.size() == 4);
-    REQUIRE(result[0].path() == sub2.string());
-    REQUIRE(result[1].path() == sub1.string());
-    REQUIRE(result[2].path() == sub4.string());
-    REQUIRE(result[3].path() == sub3.string());
+    REQUIRE(result.has_value());
+    REQUIRE(result->size() == 4);
+    REQUIRE(result.value()[0].path() == sub2.string());
+    REQUIRE(result.value()[1].path() == sub1.string());
+    REQUIRE(result.value()[2].path() == sub4.string());
+    REQUIRE(result.value()[3].path() == sub3.string());
 }
 
 TEST_CASE("List directories sorted by modification date") {
@@ -127,15 +136,16 @@ TEST_CASE("List directories sorted by modification date") {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     fs::create_directory(sub3);
 
-    constexpr app::ListDirectories useCase;
+    const app::ListDirectories useCase(*provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByModificationDate);
 
-    REQUIRE(result.size() == 4);
-    REQUIRE(result[0].path() == sub2.string());
-    REQUIRE(result[1].path() == sub1.string());
-    REQUIRE(result[2].path() == sub4.string());
-    REQUIRE(result[3].path() == sub3.string());
+    REQUIRE(result.has_value());
+    REQUIRE(result->size() == 4);
+    REQUIRE(result.value()[0].path() == sub2.string());
+    REQUIRE(result.value()[1].path() == sub1.string());
+    REQUIRE(result.value()[2].path() == sub4.string());
+    REQUIRE(result.value()[3].path() == sub3.string());
 }
 
 TEST_CASE("List directories sorted by access date") {
@@ -155,15 +165,16 @@ TEST_CASE("List directories sorted by access date") {
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     fs::create_directory(sub3);
 
-    constexpr app::ListDirectories useCase;
+    const app::ListDirectories useCase(*provider);
 
     const auto result = useCase.execute(tmp.path, app::SortOrder::ByAccessDate);
 
-    REQUIRE(result.size() == 4);
-    REQUIRE(result[0].path() == sub2.string());
-    REQUIRE(result[1].path() == sub1.string());
-    REQUIRE(result[2].path() == sub4.string());
-    REQUIRE(result[3].path() == sub3.string());
+    REQUIRE(result.has_value());
+    REQUIRE(result->size() == 4);
+    REQUIRE(result.value()[0].path() == sub2.string());
+    REQUIRE(result.value()[1].path() == sub1.string());
+    REQUIRE(result.value()[2].path() == sub4.string());
+    REQUIRE(result.value()[3].path() == sub3.string());
 }
 
 /*
@@ -183,10 +194,10 @@ TEST_CASE("List directories sorted by owner") {
     const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
 
     REQUIRE(result.size() == 4);
-    REQUIRE(result[0].path() == sub2.string());
-    REQUIRE(result[1].path() == sub1.string());
-    REQUIRE(result[2].path() == sub4.string());
-    REQUIRE(result[3].path() == sub3.string());
+    REQUIRE(result.value()[0].path() == sub2.string());
+    REQUIRE(result.value()[1].path() == sub1.string());
+    REQUIRE(result.value()[2].path() == sub4.string());
+    REQUIRE(result.value()[3].path() == sub3.string());
 }
 
  *TODO falta criar arquivos com tamanhos diferentes dentro de cada dubdr
@@ -206,9 +217,9 @@ TEST_CASE("List directories sorted by owner") {
     const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
 
     REQUIRE(result.size() == 4);
-    REQUIRE(result[0].path() == sub2.string());
-    REQUIRE(result[1].path() == sub1.string());
-    REQUIRE(result[2].path() == sub4.string());
-    REQUIRE(result[3].path() == sub3.string());
+    REQUIRE(result.value()[0].path() == sub2.string());
+    REQUIRE(result.value()[1].path() == sub1.string());
+    REQUIRE(result.value()[2].path() == sub4.string());
+    REQUIRE(result.value()[3].path() == sub3.string());
 }
 */

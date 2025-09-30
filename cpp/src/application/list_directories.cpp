@@ -5,43 +5,36 @@
 #include <format>
 #include "list_directories.h"
 #include "../core/fs.h"
-#include <sys/stat.h>
 
 namespace nautix::application {
     namespace fs = std::filesystem;
     namespace chrono = std::chrono;
 
-    std::vector<domain::Directory> ListDirectories::execute(const std::string&& existing_path, const SortOrder order) const {
-        std::optional<domain::Directory> directory = domain::Directory::from_existing(existing_path);
-        if (directory.has_value()) {
-            return execute(*directory, order);
-        }
-        return {};
+    ListDirectories::ListDirectories(IDirectoryMetadataProvider& provider)
+        : provider_(provider) {}
+
+    std::expected<std::vector<domain::Directory>, std::error_code> ListDirectories::execute(
+        const std::string& existing_path, const SortOrder order ) const
+    {
+        return execute(existing_path.c_str(), order);
     }
 
-    std::vector<domain::Directory> ListDirectories::execute(const domain::Directory& directory, const SortOrder order) const {
-        std::vector<domain::Directory> result;
-        std::vector<domain::DirectoryInfo> infos;
+    std::expected<std::vector<domain::Directory>, std::error_code> ListDirectories::execute(const char* existing_path,
+        const SortOrder order) const
+    {
+        std::vector<DirectoryMetadata> metadatas;
 
-        for (const fs::directory_entry& entry : fs::directory_iterator(directory.path())) {
-            if (!entry.is_directory())
-                continue;
-            domain::DirectoryInfo info;
-            info.path = entry.path();
-            info.name = entry.path().filename().string();
-            struct stat st{};
-            if (stat(info.path.c_str(), &st) == 0) {
-                info.size = compute_directory_size(info.path);
-                info.modification_time = get_creation_time(st);
-                info.creation_time = get_modification_time(st);
-                info.access_time = get_access_time(st);
-                info.owner_id = st.st_uid;
+        for (const fs::directory_entry& entry : fs::directory_iterator(existing_path)) {
+            std::expected<DirectoryMetadata, std::error_code> metadata =
+                provider_.get_metadata(entry.path().c_str());
+            if (!metadata.has_value()) {
+                return std::unexpected(metadata.error());
             }
-            infos.push_back(std::move(info));
+            metadatas.push_back(*metadata);
         }
 
-        std::ranges::sort(infos,
-            [order](const domain::DirectoryInfo& a, const domain::DirectoryInfo& b) {
+        std::ranges::sort(metadatas,
+            [order](const DirectoryMetadata& a, const DirectoryMetadata& b) {
                 using enum SortOrder;
                 switch (order) {
                     case BySize:
@@ -61,19 +54,14 @@ namespace nautix::application {
                 }
             });
 
-        std::ranges::transform(infos,
-            std::back_inserter(result),
-            [](domain::DirectoryInfo& info) {
-                return domain::Directory(
-                    info.path,
-                    std::move(info.name),
-                    info.size,
-                    info.owner_id,
-                    info.creation_time,
-                    info.modification_time,
-                    info.access_time);
+        std::vector<domain::Directory> directories;
+
+        std::ranges::transform(metadatas,
+            std::back_inserter(directories),
+            [](DirectoryMetadata& metadata) {
+                return domain::Directory::from_metadata(std::move(metadata));
             });
 
-        return result;
+        return directories;
     }
 }
