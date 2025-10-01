@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-#include "system_metadata_provider.h"
+#include "infra/system_metadata_provider.h"
 
 namespace fs = std::filesystem;
 namespace domain = nautix::domain;

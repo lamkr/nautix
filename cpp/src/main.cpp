@@ -5,20 +5,10 @@
 
 #include "directory.h"
 #include "list_directories.h"
+#include "system_metadata_provider.h"
 
 using namespace nautix::domain;
 using namespace nautix::application;
-
-int main1()
-{
-    constexpr ListDirectories useCase;
-
-    for (const auto subdirs = useCase.execute(TODO); const auto& dir : subdirs)
-    {
-        std::cout << "📂 " << dir.path() << std::endl;
-    }
-    return 0;
-}
 
 using namespace std::chrono;
 
@@ -50,7 +40,9 @@ int main0() {
 }
 
 int main() {
-    const std::optional<Directory>& dir = Directory::home(TODO);
+    nautix::infra::SystemMetadataProvider provider;
+    std::expected<Directory, std::error_code> dir = Directory::home(provider);
+    const app::ListDirectories useCase(provider);
 
     std::cout << "d.p1=" << &dir->path() << ":" << dir->path() << std::endl;
     fs::path path = dir->path();
@@ -60,13 +52,13 @@ int main() {
     std::cout << "d.p1=" << &dir->path() << ":" << dir->path() << std::endl;
     std::cout << "p1=" << &path << ":" << path << std::endl;
 
-    std::string owner_name = dir->get_owner_name();
+    std::string owner_name = dir->get_owner_name().value();
     std::cout << "1=" << &owner_name << ":" << owner_name << std::endl;
 
     owner_name = "upalele";
     std::cout << "1=" << &owner_name << ":" << owner_name << std::endl;
 
-    owner_name = dir->get_owner_name();
+    owner_name = dir->get_owner_name().value();
     std::cout << "2=" << &owner_name << ":" << owner_name << std::endl;
 
     owner_name = "upalele";

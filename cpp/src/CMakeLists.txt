@@ -11,7 +11,6 @@ add_executable(nautix
     $<TARGET_OBJECTS:infra>
     #$<TARGET_OBJECTS:ui>
     main.cpp
-        infra/system_metadata_provider.cpp
 )
 
 # Biblioteca principal do projeto
@@ -21,3 +20,9 @@ add_library(nautix_core
     $<TARGET_OBJECTS:domain>
     $<TARGET_OBJECTS:infra>
 )
+
+# Export include directories for anyone using nautix_core (e.g., tests)
+#target_include_directories(nautix_core
+ #   PUBLIC
+  #  ${PROJECT_SOURCE_DIR}/src
+#)
