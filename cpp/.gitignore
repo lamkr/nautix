@@ -1,5 +1,6 @@
 .idea/
 **/CMakeFiles/
+cmake-build-debug/
 
 *.lock
 **/Makefile

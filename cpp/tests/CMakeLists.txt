@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
+project(nautix_tests LANGUAGES CXX)
+
 include(FetchContent)
 FetchContent_Declare(
     catch2
@@ -8,30 +10,21 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(catch2)
 
-# Teste do ListDirectories
+# Test executable
 add_executable(test_list_directories
     application/test_list_directories.cpp
-        domain/test_directory.cpp
-)
-
-target_compile_options(test_list_directories PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-target_link_options(test_list_directories PRIVATE -fsanitize=address,undefined)
-
-target_include_directories(test_list_directories
-    PRIVATE
-    ${PROJECT_SOURCE_DIR}/src
-    ${catch2_SOURCE_DIR}/single_include
+    domain/test_directory.cpp
 )
 
 target_link_libraries(test_list_directories
-    PRIVATE nautix_core
-    Catch2::Catch2WithMain
+    PRIVATE
+        nautix_core
+        Catch2::Catch2WithMain
 )
 
-# Registrar teste para CTest (opcional)
-include(CTest)
-add_test(NAME ListDirectoriesTest COMMAND test_list_directories)
-
+# Register tests automatically with CTest
+include(Catch)
+catch_discover_tests(test_list_directories)
 
 # Enable ASAN in Debug builds
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

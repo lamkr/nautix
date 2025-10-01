@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "directory.h"
+#include "../domain/directory.h"
 #include "sort_order.h"
 #include "directory_metadata_provider.h"
 

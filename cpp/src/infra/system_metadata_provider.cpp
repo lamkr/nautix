@@ -1,8 +1,5 @@
 #include "system_metadata_provider.h"
-
 #include <sys/stat.h>
-
-#include "directory_metadata_provider.h"
 #include "../core/fs.h"
 
 namespace nautix::infra {

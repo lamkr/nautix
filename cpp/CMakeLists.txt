@@ -9,27 +9,42 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Ativa warnings importantes
+# Enable testing globally
+include(CTest)
+enable_testing()
+
+# Enable strict warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
-# Busca dependências do GTKmm
+# Dependencies: GTKMM
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTKMM REQUIRED gtkmm-4.0)
 
-include_directories(
-    ${GTKMM_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/src/application
-    ${PROJECT_SOURCE_DIR}/src/infra
-    ${PROJECT_SOURCE_DIR}/src/domain
-    ${PROJECT_SOURCE_DIR}/src/ui
-)
 add_subdirectory(src)
 add_subdirectory(tests)
 
-link_directories(${GTKMM_LIBRARY_DIRS})
+# Main executable
+add_executable(nautix
+    $<TARGET_OBJECTS:core>
+    $<TARGET_OBJECTS:application>
+    $<TARGET_OBJECTS:domain>
+    $<TARGET_OBJECTS:infra>
+    # $<TARGET_OBJECTS:ui> # Uncomment when UI is ready
+    src/main.cpp
+)
 
 target_link_libraries(nautix
-    ${GTKMM_LIBRARIES}
+    PRIVATE
+        nautix_core
+        ${GTKMM_LIBRARIES}
 )
+
+target_include_directories(nautix
+    PRIVATE
+        ${GTKMM_INCLUDE_DIRS}
+)
+
+#link_directories(${GTKMM_LIBRARY_DIRS})
+

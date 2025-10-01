@@ -4,16 +4,7 @@ add_subdirectory(domain)
 add_subdirectory(infra)
 add_subdirectory(ui)
 
-add_executable(nautix
-    $<TARGET_OBJECTS:core>
-    $<TARGET_OBJECTS:application>
-    $<TARGET_OBJECTS:domain>
-    $<TARGET_OBJECTS:infra>
-    #$<TARGET_OBJECTS:ui>
-    main.cpp
-)
-
-# Biblioteca principal do projeto
+# Core library that groups all components
 add_library(nautix_core
     $<TARGET_OBJECTS:core>
     $<TARGET_OBJECTS:application>
@@ -21,8 +12,8 @@ add_library(nautix_core
     $<TARGET_OBJECTS:infra>
 )
 
-# Export include directories for anyone using nautix_core (e.g., tests)
-#target_include_directories(nautix_core
- #   PUBLIC
-  #  ${PROJECT_SOURCE_DIR}/src
-#)
+# Expose headers to any target linking nautix_core (tests, executables, etc.)
+target_include_directories(nautix_core
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/src
+)

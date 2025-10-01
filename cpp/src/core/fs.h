@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <sys/stat.h>
 
-#include "directory.h"
+#include "../domain/directory.h"
 
 namespace fs = std::filesystem;
 namespace chrono = std::chrono;

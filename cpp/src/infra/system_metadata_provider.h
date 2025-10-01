@@ -1,5 +1,6 @@
 #pragma once
-#include "directory_metadata_provider.h"
+
+#include "../application/directory_metadata_provider.h"
 
 namespace nautix::infra {
 

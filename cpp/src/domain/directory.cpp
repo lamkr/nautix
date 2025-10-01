@@ -1,4 +1,3 @@
-#include "directory_metadata_provider.h"
 #include "../core/std.h"
 #include "../core/fs.h"
 
@@ -6,13 +5,13 @@ namespace nautix::domain {
 
     STATIC Directory Directory::from_metadata(const application::DirectoryMetadata&& metadata) {
         return Directory(
-            std::move(metadata.path),
-            std::move(metadata.name.data()),
+            metadata.path,
+            metadata.name.data(),
             metadata.size,
             metadata.owner_id,
-            std::move(metadata.creation_time),
-            std::move(metadata.modification_time),
-            std::move(metadata.access_time)
+            metadata.creation_time,
+            metadata.modification_time,
+            metadata.access_time
         );
     }
 

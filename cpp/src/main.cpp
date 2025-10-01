@@ -3,9 +3,9 @@
 #include <string>
 #include <filesystem>
 
-#include "directory.h"
-#include "list_directories.h"
-#include "system_metadata_provider.h"
+#include "domain/directory.h"
+#include "application/list_directories.h"
+#include "infra/system_metadata_provider.h"
 
 using namespace nautix::domain;
 using namespace nautix::application;
