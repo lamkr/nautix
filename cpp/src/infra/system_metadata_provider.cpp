@@ -1,10 +1,24 @@
 #include "system_metadata_provider.h"
+
+#include <expected>
 #include <sys/stat.h>
 #include "../core/fs.h"
+#include "../application/directory_metadata.h"
 
 namespace nautix::infra {
 
-    std::expected<application::DirectoryMetadata, std::error_code> SystemMetadataProvider::get_metadata(const char* path) const {
+    std::expected<bool, std::error_code> SystemMetadataProvider::create_directory(
+        const application::DirectoryMetadata& metadata) {
+        std::error_code error_code{};
+        bool created = std::filesystem::create_directory(metadata.path.c_str(), error_code);
+        if (error_code) {
+            return std::unexpected(error_code);
+        }
+        return created;
+    }
+
+    [[nodiscard]] std::expected<application::DirectoryMetadata, std::error_code>
+    SystemMetadataProvider::get_metadata(const char* path) const {
 
         struct stat st{};
         if (stat(path, &st)) {

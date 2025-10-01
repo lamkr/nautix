@@ -1,6 +1,21 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(nautix_tests LANGUAGES CXX)
+# no project() here to avoid PROJECT_SOURCE_DIR confusion
+set(TEST_SOURCES
+    application/test_list_directories.cpp
+    domain/test_directory.cpp
+        infra/FakeFileSystemProvider.cpp
+        infra/FakeFileSystemProvider.h
+)
+
+# Test executable
+add_executable(test_list_directories ${TEST_SOURCES})
+
+target_link_libraries(test_list_directories
+        PRIVATE
+        nautix_core
+        Catch2::Catch2WithMain
+)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -9,18 +24,6 @@ FetchContent_Declare(
     GIT_TAG v3.10.0
 )
 FetchContent_MakeAvailable(catch2)
-
-# Test executable
-add_executable(test_list_directories
-    application/test_list_directories.cpp
-    domain/test_directory.cpp
-)
-
-target_link_libraries(test_list_directories
-    PRIVATE
-        nautix_core
-        Catch2::Catch2WithMain
-)
 
 # Register tests automatically with CTest
 include(Catch)

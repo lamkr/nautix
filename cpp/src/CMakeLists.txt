@@ -15,5 +15,5 @@ add_library(nautix_core
 # Expose headers to any target linking nautix_core (tests, executables, etc.)
 target_include_directories(nautix_core
         PUBLIC
-        ${PROJECT_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src
 )

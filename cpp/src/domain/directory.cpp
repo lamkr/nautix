@@ -15,7 +15,7 @@ namespace nautix::domain {
         );
     }
 
-    STATIC std::expected<Directory, std::error_code> Directory::home(const application::IDirectoryMetadataProvider& provider) {
+    STATIC std::expected<Directory, std::error_code> Directory::home(const application::IFileSystemProvider& provider) {
         const std::expected<const char*, std::error_code> path = get_home_path();
         if (path.has_value()) {
             std::expected<application::DirectoryMetadata, std::error_code> metadata =
@@ -28,7 +28,7 @@ namespace nautix::domain {
         return std::unexpected(path.error());
     }
 
-    STATIC std::expected<Directory, std::error_code> Directory::temp(const application::IDirectoryMetadataProvider& provider) {
+    STATIC std::expected<Directory, std::error_code> Directory::temp(const application::IFileSystemProvider& provider) {
         const std::expected<fs::path, std::error_code> path = fs::temp_directory_path();
         if (path.has_value()) {
             std::expected<application::DirectoryMetadata, std::error_code> metadata =

@@ -10,7 +10,7 @@ namespace nautix::application {
     namespace fs = std::filesystem;
     namespace chrono = std::chrono;
 
-    ListDirectories::ListDirectories(IDirectoryMetadataProvider& provider)
+    ListDirectories::ListDirectories(IFileSystemProvider& provider)
         : provider_(provider) {
     }
 

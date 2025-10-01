@@ -3,17 +3,19 @@
 
 enum class nautix_error {
     user_not_found = 1,
+    directory_not_found = 2,
 };
 
 class nautix_error_category final : public std::error_category {
 public:
-    const char* name() const noexcept override {
+    [[nodiscard]] const char* name() const noexcept override {
         return "nautix_error";
     }
 
-    std::string message(int ev) const override {
+    [[nodiscard]] std::string message(int ev) const override {
         switch (static_cast<nautix_error>(ev)) {
             case nautix_error::user_not_found: return "User not found"; // TODO use language/idiom
+            case nautix_error::directory_not_found: return "Directory not found"; // TODO use language/idiom
             default: return "Unknown error";
         }
     }

@@ -3,13 +3,14 @@
 #include <chrono>
 #include <filesystem>
 #include "file.h"
-#include "../application/directory_metadata_provider.h"
+#include "../application/directory_metadata.h"
+#include "../application/filesystem_provider.h"
 
 namespace nautix::domain {
 
     namespace chrono = std::chrono;
     namespace fs = std::filesystem;
-    namespace app = nautix::application;
+    namespace app = application;
 
     class Directory
     {
@@ -24,8 +25,8 @@ namespace nautix::domain {
         std::vector<File> files_;
 
     public:
-        [[nodiscard]] static std::expected<Directory, std::error_code> home(const app::IDirectoryMetadataProvider& provider);
-        [[nodiscard]] static std::expected<Directory, std::error_code> temp(const app::IDirectoryMetadataProvider& provider);
+        [[nodiscard]] static std::expected<Directory, std::error_code> home(const app::IFileSystemProvider& provider);
+        [[nodiscard]] static std::expected<Directory, std::error_code> temp(const app::IFileSystemProvider& provider);
         [[nodiscard]] static Directory from_metadata(const application::DirectoryMetadata&& metadata);
 
         [[nodiscard]] const fs::path& path() const noexcept { return path_; }
