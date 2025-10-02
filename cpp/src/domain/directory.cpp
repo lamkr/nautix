@@ -1,5 +1,6 @@
 import nautix.domain;
-
+/*
+#include <expected>
 Directory Directory::from_metadata(const nautix::application::DirectoryMetadata&& metadata) {
     return Directory(
         metadata.path,
@@ -49,3 +50,4 @@ const std::vector<File>& Directory::files() const noexcept {
 void Directory::add_file(File file) {
     files_.push_back(std::move(file));
 }
+*/

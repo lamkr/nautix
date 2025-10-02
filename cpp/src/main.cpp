@@ -1,11 +1,7 @@
-#include <chrono>
-#include <iostream>
-#include <string>
-#include <filesystem>
-
-#include "domain/directory.h"
-#include "application/list_directories.h"
-#include "infra/system_metadata_provider.h"
+/*import <chrono>
+import <iostream>
+import <string>
+import <filesystem>
 
 using namespace nautix::domain;
 using namespace nautix::application;
@@ -65,4 +61,5 @@ int main() {
     std::cout << "2=" << &owner_name << ":" << owner_name << std::endl;
 
     return 0;
-}
+}*/
+int main() { return 0; }
