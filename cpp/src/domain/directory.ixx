@@ -1,10 +1,7 @@
-#pragma once
+export module nautix.domain::directory;
 
-#include <chrono>
-#include <filesystem>
-#include "file.h"
-#include "../application/directory_metadata.h"
-#include "../application/filesystem_provider.h"
+import <chrono>
+import <filesystem>
 
 namespace nautix::domain {
 

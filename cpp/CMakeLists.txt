@@ -9,14 +9,23 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable testing globally
-include(CTest)
-enable_testing()
-
 # Enable strict warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
+
+## Adicionar o FetchContent para baixar o Catch2 automaticamente
+#include(FetchContent)
+#FetchContent_Declare(
+#        Catch2
+#        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+#        GIT_TAG        v3.4.0
+#)
+#FetchContent_MakeAvailable(Catch2)
+
+# Enable testing globally
+include(CTest)
+enable_testing()
 
 # Dependencies: GTKMM
 find_package(PkgConfig REQUIRED)
@@ -27,11 +36,11 @@ add_subdirectory(tests)
 
 # Main executable
 add_executable(nautix
-    $<TARGET_OBJECTS:core>
-    $<TARGET_OBJECTS:application>
+    #$<TARGET_OBJECTS:core>
+    #$<TARGET_OBJECTS:application>
     $<TARGET_OBJECTS:domain>
-    $<TARGET_OBJECTS:infra>
-    # $<TARGET_OBJECTS:ui> # Uncomment when UI is ready
+    #$<TARGET_OBJECTS:infra>
+    # $<TARGET_OBJECTS:ui>
     src/main.cpp
 )
 
