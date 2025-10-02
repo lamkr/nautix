@@ -1,3 +1,5 @@
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+
 # Define a biblioteca que representará nosso módulo
 add_library(domain
         directory.cpp
@@ -8,7 +10,7 @@ target_sources(domain PUBLIC
         FILE_SET CXX_MODULES
         FILES
             domain.cppm
-            directory.cppm
+            directory.ixx
 )
 
 # Expõe o nome lógico do módulo para outros alvos do CMake
