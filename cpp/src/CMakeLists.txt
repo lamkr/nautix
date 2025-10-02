@@ -10,6 +10,8 @@ add_library(nautix_core
     $<TARGET_OBJECTS:application>
     $<TARGET_OBJECTS:domain>
     $<TARGET_OBJECTS:infra>
+        ui/DirectoryTreeView.cpp
+        ui/DirectoryTreeView.h
 )
 
 # Expose headers to any target linking nautix_core (tests, executables, etc.)

@@ -6,6 +6,7 @@ set(TEST_SOURCES
     domain/test_directory.cpp
         infra/FakeFileSystemProvider.cpp
         infra/FakeFileSystemProvider.h
+        ui/test_DirectoryTreeView.cpp
 )
 
 # Test executable
