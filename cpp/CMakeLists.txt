@@ -40,12 +40,12 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTKMM REQUIRED gtkmm-4.0)
 
 add_subdirectory(src)
-#add_subdirectory(tests)
+add_subdirectory(tests)
 
 # Main executable
 add_executable(nautix
     #$<TARGET_OBJECTS:core>
-    #$<TARGET_OBJECTS:application>
+    $<TARGET_OBJECTS:application>
     $<TARGET_OBJECTS:domain>
     #$<TARGET_OBJECTS:infra>
     # $<TARGET_OBJECTS:ui>
