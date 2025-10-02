@@ -7,8 +7,8 @@ add_library(domain
 target_sources(domain PUBLIC
         FILE_SET CXX_MODULES
         FILES
-        domain.cppm
-        directory.ixx
+            domain.cppm
+            directory.cppm
 )
 
 # Expõe o nome lógico do módulo para outros alvos do CMake
