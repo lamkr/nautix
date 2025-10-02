@@ -63,5 +63,5 @@ target_include_directories(nautix
         ${GTKMM_INCLUDE_DIRS}
 )
 
-#link_directories(${GTKMM_LIBRARY_DIRS})
+link_directories(${GTKMM_LIBRARY_DIRS})
 

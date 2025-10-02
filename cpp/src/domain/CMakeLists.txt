@@ -9,6 +9,8 @@ target_sources(domain PUBLIC
         FILES
             domain.cppm
             directory.ixx
+            local_time.ixx
+            owner.ixx
 )
 
 # Expõe o nome lógico do módulo para outros alvos do CMake
