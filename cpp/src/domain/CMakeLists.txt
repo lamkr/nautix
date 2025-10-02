@@ -15,6 +15,5 @@ target_sources(${MODULE_NAME} PUBLIC
     owner.cppm
 )
 
-# Expõe o nome lógico do módulo para outros alvos do CMake
 target_compile_features(${MODULE_NAME} PUBLIC cxx_std_23)
 set_target_properties(${MODULE_NAME} PROPERTIES CXX_EXPORTED_MODULE_NAME "nautix.domain")
