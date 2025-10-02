@@ -1,9 +1,9 @@
 export module nautix.domain::directory;
 
-import <chrono>
-import <filesystem>
+import <chrono>;
+import <filesystem>;
 
-class Directory
+export class Directory
 {
     const std::filesystem::path path_;
     const std::string name_;

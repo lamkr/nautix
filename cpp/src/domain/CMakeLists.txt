@@ -1,5 +1,3 @@
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
-
 # Define a biblioteca que representará nosso módulo
 add_library(domain
         directory.cpp

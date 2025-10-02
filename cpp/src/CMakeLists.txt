@@ -1,4 +1,3 @@
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
 #add_subdirectory(core)
 #add_subdirectory(application)
@@ -16,3 +15,5 @@ target_include_directories(nautix_core
         PUBLIC
         ${CMAKE_SOURCE_DIR}/src
 )
+
+
