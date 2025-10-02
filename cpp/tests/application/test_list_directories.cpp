@@ -61,7 +61,7 @@ TEST_CASE("ListDirectories sorts by modification time using fake provider", "[un
     REQUIRE(result.value()[0].path().filename() == "d1");
 }
 
-TEST_CASE("List subdirectories of a directory") {
+TEST_CASE("List subdirectories") {
     const TempDir tmp;
 
     // Create subdirectories
@@ -93,7 +93,7 @@ TEST_CASE("Directory without subdirectories should return empty list") {
     REQUIRE(result->empty());
 }
 
-TEST_CASE("List directories sorted by name") {
+TEST_CASE("Sorted by name") {
     const TempDir tmp;
 
     // Create subdirectories
@@ -119,7 +119,7 @@ TEST_CASE("List directories sorted by name") {
     REQUIRE(result.value()[3].path() == sub4.string());
 }
 
-TEST_CASE("List directories sorted by creation date") {
+TEST_CASE("Sorted by creation date") {
     const TempDir tmp;
 
     // Create subdirectories
@@ -148,7 +148,7 @@ TEST_CASE("List directories sorted by creation date") {
     REQUIRE(result.value()[3].path() == sub3.string());
 }
 
-TEST_CASE("List directories sorted by modification date") {
+TEST_CASE("Sorted by modification date") {
     const TempDir tmp;
 
     // Create subdirectories
@@ -177,7 +177,7 @@ TEST_CASE("List directories sorted by modification date") {
     REQUIRE(result.value()[3].path() == sub3.string());
 }
 
-TEST_CASE("List directories sorted by access date") {
+TEST_CASE("Sorted by access date") {
     const TempDir tmp;
 
     // Create subdirectories

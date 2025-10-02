@@ -1,0 +1,60 @@
+name: Nautix Release
+
+on:
+    push:
+        tags:
+            - "v*"   # Executa apenas em tags como v1.0.0
+
+jobs:
+    build-linux:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                    build-essential \
+                    cmake \
+                    ninja-build \
+                    pkg-config \
+                    libgtkmm-4.0-dev \
+                    dpkg-dev \
+                    fakeroot
+
+            - name: Configure CMake
+              run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+            - name: Build Nautix
+              run: cmake --build build --parallel
+
+            - name: Package into .deb
+              run: |
+                  mkdir -p build/deb/nautix/DEBIAN
+                  mkdir -p build/deb/nautix/usr/bin
+
+                  cp build/nautix build/deb/nautix/usr/bin/nautix
+
+                  cat <<EOF > build/deb/nautix/DEBIAN/control
+                  Package: nautix
+                  Version: ${GITHUB_REF_NAME#v}
+                  Section: utils
+                  Priority: optional
+                  Architecture: amd64
+                  Maintainer: Nautix Dev Team <dev@nautix.org>
+                  Description: Nautix - Explorer-like file manager for Linux GNOME
+                   Nautix is a GNOME file manager inspired by Windows Explorer,
+                   built with C++23 and GTKmm.
+                  EOF
+
+                  dpkg-deb --build build/deb/nautix build/nautix_${GITHUB_REF_NAME#v}_amd64.deb
+
+            - name: Upload Release Asset
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: build/nautix_*.deb
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
