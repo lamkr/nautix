@@ -1,7 +1,10 @@
-export module nautix.domain:directory;
+module;
 
 #include <chrono>
 #include <filesystem>
+
+export module nautix.domain:directory;
+
 import :local_time;
 import :owner;
 

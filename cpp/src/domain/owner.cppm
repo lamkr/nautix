@@ -1,10 +1,11 @@
-export module nautix.domain:owner;
+module;
 
 #include <string>
-#include <sys/types.h>
+
+export module nautix.domain:owner;
 
 export class Owner {
-    uid_t id_{};
+    uid_t id_{0};
     std::string name_{};
 
 public:
@@ -13,4 +14,7 @@ public:
         : id_(id)
         , name_(name)//std::forward<std::chrono::local_time<std::chrono::system_clock::duration>>(local_time))
     {}
+
+    [[nodiscard]] const std::string& name() const { return name_; }
+    [[nodiscard]] uid_t id() const { return id_; }
 };

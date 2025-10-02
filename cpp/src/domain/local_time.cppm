@@ -1,6 +1,8 @@
-export module nautix.domain:local_time;
+module;
 
 #include <chrono>
+
+export module nautix.domain:local_time;
 
 export class LocalTime {
     std::chrono::local_time<std::chrono::system_clock::duration> local_time_{};
