@@ -31,6 +31,8 @@ public:
 export class ListDirectories {
     std::shared_ptr<IDirectoriesIterator> iterator_;
 public:
+    virtual ~ListDirectories() = default;
+
     explicit ListDirectories(std::shared_ptr<IDirectoriesIterator> iterator)
         : iterator_(std::move(iterator)) {}
     

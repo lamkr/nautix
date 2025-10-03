@@ -19,6 +19,8 @@ export class Directory
     const LocalTime access_time_{};
 
 public:
+    ~Directory() {}
+
     [[nodiscard]] const std::filesystem::path& path() const noexcept { return path_; }
     [[nodiscard]] const std::string& name() const noexcept { return name_; }
     [[nodiscard]] uintmax_t size() const noexcept { return size_; }
