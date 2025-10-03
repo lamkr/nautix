@@ -1,0 +1,39 @@
+#pragma once
+#include <expected>
+#include <filesystem>
+#include <system_error>
+#include <vector>
+#include "../domain/directory.h"
+
+namespace nautix::application {
+
+    enum class SortOrder {
+        None,
+        ByName,
+        BySize,
+        ByOwner,
+        ByCreationDate,
+        ByModificationDate,
+        ByAccessDate,
+    };
+
+    class IDirectoriesLister {
+    public:
+        virtual ~IDirectoriesLister() = default;
+
+        virtual std::expected<std::vector<domain::Directory>, std::error_code> list_directories(
+            const std::filesystem::path& path,
+            SortOrder order) const = 0;
+    };
+
+    class ListDirectories final {
+        std::shared_ptr<IDirectoriesLister> iterator_;
+    public:
+        explicit ListDirectories(std::shared_ptr<IDirectoriesLister> iterator)
+            : iterator_(std::move(iterator)) {}
+
+        [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code> execute(
+            const std::filesystem::path& path,
+            SortOrder order = SortOrder::None) const;
+    };
+}

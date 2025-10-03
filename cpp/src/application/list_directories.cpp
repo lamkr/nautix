@@ -1,17 +1,9 @@
-module;
+#include "list_directories.h"
 
-#include <expected>
-#include <filesystem>
-#include <system_error>
-#include <vector>
+namespace nautix::application {
 
-module nautix.application;
-
-import :list_directories;
-import nautix.domain;
-
-[[nodiscard]] std::expected<std::vector<Directory>, std::error_code>
-ListDirectories::execute(const std::filesystem::path& path, SortOrder order) const {
-    return iterator_->list_directories(path, order);
+    [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
+    ListDirectories::execute(const std::filesystem::path& path, SortOrder order) const {
+        return iterator_->list_directories(path, order);
+    }
 }
-

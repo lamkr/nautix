@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 4.0.2)
 
+#Veja /clang-toolchain.cmake
 #set(CMAKE_CXX_COMPILER clang++-20)
 #set(CMAKE_C_COMPILER clang-20)
 
@@ -44,11 +45,10 @@ add_subdirectory(tests)
 
 # Main executable
 add_executable(nautix
-    #$<TARGET_OBJECTS:core>
     $<TARGET_OBJECTS:application>
     $<TARGET_OBJECTS:domain>
-    #$<TARGET_OBJECTS:infra>
-    # $<TARGET_OBJECTS:ui>
+    $<TARGET_OBJECTS:infra>
+    #$<TARGET_OBJECTS:ui>
     src/main.cpp
 )
 
