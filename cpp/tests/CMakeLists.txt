@@ -11,9 +11,9 @@ add_executable(test_list_directories ${TEST_SOURCES})
 target_link_libraries(test_list_directories
         PRIVATE
         Catch2::Catch2WithMain
-        nautix.domain
-        nautix.application
-        nautix.infra
+        domain
+        application
+        infra
 )
 
 include(FetchContent)

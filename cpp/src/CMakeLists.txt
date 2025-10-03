@@ -5,6 +5,8 @@ add_subdirectory(infra)
 
 # Core library that groups all components
 add_library(nautix_core
-    $<TARGET_OBJECTS:domain>
-    $<TARGET_OBJECTS:application>
+        $<TARGET_OBJECTS:domain>
+        $<TARGET_OBJECTS:application>
+        $<TARGET_OBJECTS:infra>
+        #$<TARGET_OBJECTS:ui>
 )
