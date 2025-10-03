@@ -27,10 +27,10 @@ namespace nautix::application {
     };
 
     class ListDirectories final {
-        std::shared_ptr<IDirectoriesLister> iterator_;
+        std::shared_ptr<IDirectoriesLister> lister_;
     public:
-        explicit ListDirectories(std::shared_ptr<IDirectoriesLister> iterator)
-            : iterator_(std::move(iterator)) {}
+        explicit ListDirectories(std::shared_ptr<IDirectoriesLister> lister)
+            : lister_(std::move(lister)) {}
 
         [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code> execute(
             const std::filesystem::path& path,

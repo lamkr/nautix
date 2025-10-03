@@ -3,8 +3,6 @@
 #include "fs.h"
 #include "errors.h"
 
-const auto UNKNOWN_OWNER_NAME = "<unknown>";
-
 //std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
 //std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
@@ -83,5 +81,5 @@ std::uintmax_t compute_directory_size(const std::filesystem::path& path) {
 nautix::domain::Owner get_owner_from_id(const struct stat& stat) {
     return nautix::domain::Owner(
         stat.st_uid,
-        get_owner_name(stat.st_uid).value_or(UNKNOWN_OWNER_NAME) );
+        get_owner_name(stat.st_uid).value_or(nautix::domain::UNKNOWN_OWNER_NAME) );
 }

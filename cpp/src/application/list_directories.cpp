@@ -4,6 +4,6 @@ namespace nautix::application {
 
     [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
     ListDirectories::execute(const std::filesystem::path& path, SortOrder order) const {
-        return iterator_->list_directories(path, order);
+        return lister_->list_directories(path, order);
     }
 }

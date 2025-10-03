@@ -3,12 +3,14 @@
 
 namespace nautix::domain {
 
+    const auto UNKNOWN_OWNER_NAME = "<unknown>";
+
     class Owner {
         uid_t id_;
         std::string name_{};
 
     public:
-        Owner() = default;
+        Owner() : Owner(-1, UNKNOWN_OWNER_NAME) {}
 
         explicit Owner(const uid_t id, std::string&& name)
             : id_(id)

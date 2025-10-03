@@ -6,15 +6,44 @@
 
 namespace nautix::infra {
 
-    struct DirectoryMetadata {
-        std::filesystem::path path;
-        std::string name;
-        std::uintmax_t size{0};
-        domain::Owner owner{};
-        domain::LocalTime creation_time;
-        domain::LocalTime modification_time;
-        domain::LocalTime access_time;
-    };
+    [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
+    DirectoriesLister::list_directories(const std::filesystem::path& path, application::SortOrder order)
+    const
+    {
+        std::vector<DirectoryMetadata> metadatas;
+
+        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path)) {
+            if (entry.is_directory()) {
+                std::expected<DirectoryMetadata, std::error_code> metadata =
+                    get_metadata(entry.path().c_str());
+                if (!metadata.has_value()) {
+                    return std::unexpected(metadata.error());
+                }
+                metadatas.push_back(metadata.value());
+            }
+        }
+
+        sort_metadata_vector(metadatas, order);
+
+        return to_directories(metadatas);
+        /*std::vector<domain::Directory> directories;
+
+        std::ranges::transform(metadatas,
+            std::back_inserter(directories),
+            [](DirectoryMetadata& metadata) {
+                return domain::Directory {
+                    metadata.path,
+                    std::move(metadata.name),
+                    metadata.size,
+                    std::move(metadata.owner),
+                    std::move(metadata.creation_time),
+                    std::move(metadata.modification_time),
+                    std::move(metadata.access_time)
+                };
+            });
+
+        return directories;*/
+    }
 
     [[nodiscard]] std::expected<DirectoryMetadata, std::error_code> get_metadata(const char* path) {
         struct stat st{};
@@ -37,23 +66,7 @@ namespace nautix::infra {
         );
     }
 
-    [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
-    DirectoriesLister::list_directories(const std::filesystem::path& path, application::SortOrder order)
-    const
-    {
-        std::vector<DirectoryMetadata> metadatas;
-
-        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path)) {
-            if (entry.is_directory()) {
-                std::expected<DirectoryMetadata, std::error_code> metadata =
-                    get_metadata(entry.path().c_str());
-                if (!metadata.has_value()) {
-                    return std::unexpected(metadata.error());
-                }
-                metadatas.push_back(metadata.value());
-            }
-        }
-
+    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, application::SortOrder order) {
         std::ranges::sort(metadatas,
             [order](const DirectoryMetadata& a, const DirectoryMetadata& b) {
                 using enum application::SortOrder;
@@ -69,18 +82,23 @@ namespace nautix::infra {
                     case ByAccessDate:
                         return a.access_time < b.access_time;
                     case ByName:
+                        return a.owner.name() < b.owner.name();
                     case None:
                     default:
-                        return a.owner.name() < b.owner.name();
+                        return false; // Não ordena se None ou caso não esperado
                 }
             });
+    }
 
+    std::vector<domain::Directory> to_directories(std::vector<DirectoryMetadata>& metadatas) {
         std::vector<domain::Directory> directories;
+        directories.reserve(metadatas.size());
 
-        std::ranges::transform(metadatas,
+        std::ranges::transform(
+            metadatas,
             std::back_inserter(directories),
             [](DirectoryMetadata& metadata) {
-                return domain::Directory {
+                return domain::Directory{
                     metadata.path,
                     std::move(metadata.name),
                     metadata.size,
@@ -89,8 +107,10 @@ namespace nautix::infra {
                     std::move(metadata.modification_time),
                     std::move(metadata.access_time)
                 };
-            });
+            }
+        );
 
         return directories;
     }
+
 }

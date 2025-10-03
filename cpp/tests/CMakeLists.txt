@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 
 set(TEST_SOURCES
-        domain/test_directory.cpp
+        application/test_list_directories.cpp
+        infra/mock_directories_lister.cpp
+        infra/mock_directories_lister.h
 )
 
 add_executable(test_list_directories ${TEST_SOURCES})
@@ -9,9 +11,9 @@ add_executable(test_list_directories ${TEST_SOURCES})
 target_link_libraries(test_list_directories
         PRIVATE
         Catch2::Catch2WithMain
-# O domínio é uma dependência transitiva, mas é bom ser explícito
         nautix.domain
         nautix.application
+        nautix.infra
 )
 
 include(FetchContent)
