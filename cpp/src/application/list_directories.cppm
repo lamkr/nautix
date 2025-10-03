@@ -23,7 +23,7 @@ export class IDirectoriesIterator {
 public:
     virtual ~IDirectoriesIterator() = default;
 
-    virtual std::expected<Directory, std::error_code> list_directories(
+    virtual std::expected<std::vector<Directory>, std::error_code> list_directories(
         const std::filesystem::path& path,
         SortOrder order) = 0;
 };
