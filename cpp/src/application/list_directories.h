@@ -21,7 +21,7 @@ namespace nautix::application {
     public:
         virtual ~IDirectoriesLister() = default;
 
-        virtual std::expected<std::vector<domain::Directory>, std::error_code> list_directories(
+        [[nodiscard]] virtual std::expected<std::vector<domain::Directory>, std::error_code> list_directories(
             const std::filesystem::path& path,
             SortOrder order) const = 0;
     };

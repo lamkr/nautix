@@ -82,10 +82,9 @@ namespace nautix::infra {
                     case ByAccessDate:
                         return a.access_time < b.access_time;
                     case ByName:
-                        return a.owner.name() < b.owner.name();
                     case None:
                     default:
-                        return false; // Não ordena se None ou caso não esperado
+                        return a.owner.name() < b.owner.name();
                 }
             });
     }
