@@ -1,7 +1,9 @@
 #include <unistd.h>
 #include <pwd.h>
-#include "include/fs.h"
-#include "include/errors.h"
+#include "src/include/fs.h"
+#include "src/include/errors.h"
+#include "domain/local_time.h"
+#include "domain/owner.h"
 
 //std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
 //std::chrono::local_time<std::chrono::duration<long, std::nano>>

@@ -9,7 +9,7 @@ namespace nautix::application::ports {
     /**
      * @brief Exception thrown when an item deletion fails.
      */
-    class DeletionFailure : public std::runtime_error {
+    class DeletionFailure final : public std::runtime_error {
     public:
         using std::runtime_error::runtime_error;
     };

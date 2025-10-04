@@ -4,8 +4,9 @@
 #include <thread>
 #include <catch2/catch_all.hpp>
 
-#include "../../src/application/include/list_directories.h"
-#include "../../src/infra/src/ports/directories_lister.h"
+#include "ListDirectories.h"
+#include "src/include/ports/directories_lister.h"
+
 
 // Helper to create temporary test environment.
 struct TempDir {
@@ -47,7 +48,7 @@ TEST_CASE("List directories") {
 
 TEST_CASE("Directory without subdirectories should return empty list") {
     const TempDir tmp;
-    auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
+    const auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
 
     const auto result = useCase.execute(tmp.path.string());
@@ -73,7 +74,7 @@ TEST_CASE("Sorted by name") {
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
 
-    const auto result = useCase.execute(tmp.path, nautix::application::SortOrder::ByName);
+    const auto result = useCase.execute(tmp.path, SortOrder::ByName);
 
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);
@@ -103,7 +104,7 @@ TEST_CASE("Sorted by creation date") {
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
 
-    const auto result = useCase.execute(tmp.path, nautix::application::SortOrder::ByCreationDate);
+    const auto result = useCase.execute(tmp.path, SortOrder::ByCreationDate);
 
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);
@@ -133,7 +134,7 @@ TEST_CASE("Sorted by modification date") {
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
 
-    const auto result = useCase.execute(tmp.path, nautix::application::SortOrder::ByModificationDate);
+    const auto result = useCase.execute(tmp.path, SortOrder::ByModificationDate);
 
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);
@@ -163,7 +164,7 @@ TEST_CASE("Sorted by access date") {
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
 
-    const auto result = useCase.execute(tmp.path, nautix::application::SortOrder::ByAccessDate);
+    const auto result = useCase.execute(tmp.path, SortOrder::ByAccessDate);
 
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);

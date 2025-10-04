@@ -6,7 +6,11 @@ file(GLOB_RECURSE INFRA_SOURCES
         "src/*.cpp"
         "src/**/*.cpp"
 )
-file(GLOB_RECURSE INFRA_HEADERS "include/**/*.h")
+file(GLOB_RECURSE INFRA_HEADERS
+        CONFIGURE_DEPENDS
+        "include/*.h"
+        "include/**/*.h"
+)
 
 message(STATUS "INFRA_SOURCES: ${INFRA_SOURCES}")
 message(STATUS "INFRA_HEADERS: ${INFRA_HEADERS}")

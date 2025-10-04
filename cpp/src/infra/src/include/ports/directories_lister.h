@@ -3,7 +3,10 @@
 #include <filesystem>
 #include <system_error>
 #include <vector>
-#include "../../../application/include/list_directories.h"
+
+
+#include "IDirectoriesLister.h"
+#include "domain/local_time.h"
 
 namespace nautix::infra {
     struct DirectoryMetadata;
@@ -13,13 +16,13 @@ namespace nautix::infra {
         ~DirectoriesLister() override = default;
 
         [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
-            list_directories( const std::filesystem::path& path, application::SortOrder order) const override;
+            list_directories( const std::filesystem::path& path, SortOrder order) const override;
 
     };
 
     [[nodiscard]] std::expected<DirectoryMetadata, std::error_code> get_metadata(const char* path);
 
-    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, application::SortOrder order);
+    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, SortOrder order);
 
     std::vector<domain::Directory> to_directories(std::vector<DirectoryMetadata>& metadatas);
 

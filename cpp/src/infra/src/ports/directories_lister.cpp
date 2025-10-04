@@ -1,13 +1,15 @@
-#include "../include/fs.h"
-#include "../../include/domain/directory.h"
-#include "directories_lister.h"
+#include "src/include/ports/directories_lister.h"
 
 #include <algorithm>
-#include <iostream>
+#include <expected>
+#include <sys/stat.h>
+
+#include "domain/directory.h"
+#include "src/include/fs.h"
 
 namespace nautix::infra {
     [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
-    DirectoriesLister::list_directories(const std::filesystem::path& path, application::SortOrder order)
+    DirectoriesLister::list_directories(const std::filesystem::path& path, const SortOrder order)
     const
     {
         std::vector<DirectoryMetadata> metadatas;
@@ -49,10 +51,10 @@ namespace nautix::infra {
         );
     }
 
-    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, application::SortOrder order) {
+    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, SortOrder order) {
         std::ranges::sort(metadatas,
             [order](const DirectoryMetadata& a, const DirectoryMetadata& b) {
-                using enum application::SortOrder;
+                using enum SortOrder;
                 switch (order) {
                     case BySize:
                         return a.size < b.size;

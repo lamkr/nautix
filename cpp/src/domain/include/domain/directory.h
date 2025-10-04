@@ -1,7 +1,8 @@
 #pragma once
 #include <chrono>
 #include <filesystem>
-#include "../../src/domain/local_time.h"
+
+#include "local_time.h"
 #include "owner.h"
 
 namespace nautix::domain

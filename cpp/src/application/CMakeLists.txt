@@ -6,7 +6,11 @@ file(GLOB_RECURSE APP_SOURCES
         "src/*.cpp"
         "src/**/*.cpp"
 )
-file(GLOB_RECURSE APP_HEADERS "include/**/*.h")
+file(GLOB_RECURSE APP_HEADERS
+        CONFIGURE_DEPENDS
+        "include/*.h"
+        "include/**/*.h"
+)
 
 message(STATUS "APP_SOURCES: ${APP_SOURCES}")
 message(STATUS "APP_HEADERS: ${APP_HEADERS}")
@@ -20,6 +24,7 @@ target_sources(application
 target_include_directories(application
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ports>
         $<INSTALL_INTERFACE:include>
 )
 

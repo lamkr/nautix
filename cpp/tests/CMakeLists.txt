@@ -1,9 +1,8 @@
 enable_testing()
 
 set(TEST_SOURCES
-        application/test_list_directories.cpp
-        application/DeleteItemsUseCase.test.cpp
-        infra/mock_directories_lister.cpp
+        application/ListItems.test.cpp
+        application/DeleteItems.test.cpp
 )
 
 add_executable(tests
