@@ -5,7 +5,7 @@
 
 namespace nautix::infra {
     [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
-    DirectoriesLister::list_directories(const std::filesystem::path& path, const SortOrder order)
+    DirectoriesLister::list_directories(const std::filesystem::path& path, const application::SortOrder order)
     const
     {
         std::vector<DirectoryMetadata> metadatas;
@@ -47,10 +47,10 @@ namespace nautix::infra {
         );
     }
 
-    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, SortOrder order) {
+    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, application::SortOrder order) {
         std::ranges::sort(metadatas,
             [order](const DirectoryMetadata& a, const DirectoryMetadata& b) {
-                using enum SortOrder;
+                using enum application::SortOrder;
                 switch (order) {
                     case BySize:
                         return a.size < b.size;

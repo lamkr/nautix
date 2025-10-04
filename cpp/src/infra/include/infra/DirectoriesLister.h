@@ -4,6 +4,7 @@
 #include <system_error>
 #include <vector>
 
+#include "application/SortOrder.h"
 #include "application/ports/IDirectoriesLister.h"
 #include "domain/local_time.h" //TODO remover referencia a domain
 
@@ -15,13 +16,13 @@ namespace nautix::infra {
         ~DirectoriesLister() override = default;
 
         [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
-            list_directories( const std::filesystem::path& path, SortOrder order) const override;
+            list_directories( const std::filesystem::path& path, application::SortOrder order) const override;
 
     };
 
     [[nodiscard]] std::expected<DirectoryMetadata, std::error_code> get_metadata(const char* path);
 
-    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, SortOrder order);
+    void sort_metadata_vector(std::vector<DirectoryMetadata>& metadatas, application::SortOrder order);
 
     std::vector<domain::Directory> to_directories(std::vector<DirectoryMetadata>& metadatas);
 
