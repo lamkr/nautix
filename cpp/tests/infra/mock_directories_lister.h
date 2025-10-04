@@ -1,7 +1,7 @@
 #pragma once
-#include "../../src/domain/directory.h"
-#include "../../src/application/list_directories.h"
-#include "../../src/infra/directories_lister.h"
+#include "../../include/domain/directory.h"
+#include "../../src/application/include/list_directories.h"
+#include "../../src/infra/src/ports/directories_lister.h"
 
 class MockDirectoriesLister final : public nautix::application::IDirectoriesLister {
     std::vector<nautix::infra::DirectoryMetadata>& metadatas;

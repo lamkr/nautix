@@ -1,0 +1,1 @@
+bool to_be_removed() { return true; }

@@ -3,7 +3,7 @@
 #include <system_error>
 #include <expected>
 #include <vector>
-#include "../../src/infra/directories_lister.h"
+#include "../../src/infra/src/ports/directories_lister.h"
 
 [[nodiscard]] std::expected<std::vector<nautix::domain::Directory>, std::error_code>
 MockDirectoriesLister::list_directories(

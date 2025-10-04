@@ -1,5 +1,5 @@
-#include "fs.h"
-#include "../domain/directory.h"
+#include "../include/fs.h"
+#include "../../include/domain/directory.h"
 #include "directories_lister.h"
 
 #include <algorithm>

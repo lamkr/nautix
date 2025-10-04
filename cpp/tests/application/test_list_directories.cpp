@@ -4,8 +4,8 @@
 #include <thread>
 #include <catch2/catch_all.hpp>
 
-#include "../../src/application/list_directories.h"
-#include "../../src/infra/directories_lister.h"
+#include "../../src/application/include/list_directories.h"
+#include "../../src/infra/src/ports/directories_lister.h"
 
 // Helper to create temporary test environment.
 struct TempDir {

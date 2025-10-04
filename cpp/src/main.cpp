@@ -1,3 +1,14 @@
+#include <libintl.h>
+#include <clocale>
+
+int main() {
+    // Setup locale and i18n
+    setlocale(LC_ALL, "");
+    bindtextdomain("nautix", "/usr/share/locale"); // Ou outro diretório de instalação
+    textdomain("nautix");
+    return 0;
+}
+
 /*import <chrono>
 import <iostream>
 import <string>

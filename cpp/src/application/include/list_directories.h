@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <system_error>
 #include <vector>
-#include "../domain/directory.h"
+#include "../../include/domain/directory.h"
 
 namespace nautix::application {
 
