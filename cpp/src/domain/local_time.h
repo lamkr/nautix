@@ -3,6 +3,6 @@
 
 namespace nautix::domain {
 
-    class LocalTime : public std::chrono::local_time<std::chrono::duration<long, std::nano>> {};
+    typedef std::chrono::local_time<std::chrono::duration<long, std::nano>> LocalTime;
 
 }

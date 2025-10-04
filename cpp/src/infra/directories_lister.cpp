@@ -26,23 +26,6 @@ namespace nautix::infra {
         sort_metadata_vector(metadatas, order);
 
         return to_directories(metadatas);
-        /*std::vector<domain::Directory> directories;
-
-        std::ranges::transform(metadatas,
-            std::back_inserter(directories),
-            [](DirectoryMetadata& metadata) {
-                return domain::Directory {
-                    metadata.path,
-                    std::move(metadata.name),
-                    metadata.size,
-                    std::move(metadata.owner),
-                    std::move(metadata.creation_time),
-                    std::move(metadata.modification_time),
-                    std::move(metadata.access_time)
-                };
-            });
-
-        return directories;*/
     }
 
     [[nodiscard]] std::expected<DirectoryMetadata, std::error_code> get_metadata(const char* path) {
@@ -102,9 +85,9 @@ namespace nautix::infra {
                     std::move(metadata.name),
                     metadata.size,
                     std::move(metadata.owner),
-                    std::move(metadata.creation_time),
-                    std::move(metadata.modification_time),
-                    std::move(metadata.access_time)
+                    dynamic_cast<const domain::LocalTime&&>(metadata.creation_time),
+                    dynamic_cast<const domain::LocalTime&&>(metadata.modification_time),
+                    dynamic_cast<const domain::LocalTime&&>(metadata.access_time)
                 };
             }
         );

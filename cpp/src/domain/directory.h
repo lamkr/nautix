@@ -6,9 +6,6 @@
 
 namespace nautix::domain
 {
-    class Owner;
-    class LocalTime;
-
     struct Directory
     {
         const std::filesystem::path path_{};
