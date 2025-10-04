@@ -5,7 +5,11 @@ file(GLOB_RECURSE DOMAIN_SOURCES
         "src/*.cpp"
         "src/**/*.cpp"
 )
-file(GLOB_RECURSE DOMAIN_HEADERS "include/**/*.h")
+file(GLOB_RECURSE DOMAIN_HEADERS
+        CONFIGURE_DEPENDS
+        "include/*.h"
+        "include/**/*.h"
+)
 
 message(STATUS "DOMAIN_SOURCES: ${DOMAIN_SOURCES}")
 message(STATUS "DOMAIN_HEADERS: ${DOMAIN_HEADERS}")

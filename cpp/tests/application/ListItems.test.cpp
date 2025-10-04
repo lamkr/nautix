@@ -1,12 +1,14 @@
 #define CATCH_CONFIG_MAIN
 #include <filesystem>
 #include <fstream>
+#include <chrono>
 #include <thread>
 #include <catch2/catch_all.hpp>
 
-#include "ListDirectories.h"
-#include "src/include/ports/directories_lister.h"
+#include "application/ListDirectories.h"
+#include "infra/DirectoriesLister.h"
 
+using namespace std::chrono_literals;
 
 // Helper to create temporary test environment.
 struct TempDir {
@@ -94,11 +96,11 @@ TEST_CASE("Sorted by creation date") {
     const auto sub3 = tmp.path / "stu";
 
     std::filesystem::create_directory(sub4);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub3);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub2);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub1);
 
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
@@ -124,11 +126,11 @@ TEST_CASE("Sorted by modification date") {
     const auto sub3 = tmp.path / "stu";
 
     std::filesystem::create_directory(sub2);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub4);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub3);
 
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
@@ -154,11 +156,11 @@ TEST_CASE("Sorted by access date") {
     const auto sub3 = tmp.path / "stu";
 
     std::filesystem::create_directory(sub1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub3);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub2);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::this_thread::sleep_for(250ms);
     std::filesystem::create_directory(sub4);
 
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();

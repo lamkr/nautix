@@ -1,6 +1,6 @@
-#include "ListDirectories.h"
+#include "application/ListDirectories.h"
+#include "application/SortOrder.h"
 #include <expected>
-#include "domain/directory.h"
 
 namespace nautix::application {
 

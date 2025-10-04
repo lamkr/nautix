@@ -4,9 +4,8 @@
 #include <system_error>
 #include <vector>
 
-
-#include "IDirectoriesLister.h"
-#include "domain/local_time.h"
+#include "application/ports/IDirectoriesLister.h"
+#include "domain/local_time.h" //TODO remover referencia a domain
 
 namespace nautix::infra {
     struct DirectoryMetadata;

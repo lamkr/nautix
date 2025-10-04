@@ -1,8 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/trompeloeil.hpp> // Supondo o uso do trompeloeil para mocks com Catch2
 
-#include "DeleteItems.h"
-#include "ports/IItemsDeleter.h"
+#include "application/DeleteItems.h"
+#include "application/ports/IItemsDeleter.h"
 
 // Mock da nossa interface
 class MockItemsDeleter final : public nautix::application::ports::IItemsDeleter {

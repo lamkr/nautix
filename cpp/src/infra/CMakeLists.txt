@@ -31,6 +31,5 @@ target_include_directories(infra
 # A camada de infraestrutura DEPENDE da camada de aplicação.
 target_link_libraries(infra
     PUBLIC
-        domain
         application
 )

@@ -24,7 +24,6 @@ target_sources(application
 target_include_directories(application
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ports>
         $<INSTALL_INTERFACE:include>
 )
 

@@ -2,7 +2,7 @@
 #include <expected>
 #include <filesystem>
 
-#include "SortOrder.h"
+#include "../SortOrder.h"
 #include "domain/directory.h"
 
 namespace nautix::application {
