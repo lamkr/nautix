@@ -3,9 +3,9 @@
 #include "directories_lister.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace nautix::infra {
-
     [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
     DirectoriesLister::list_directories(const std::filesystem::path& path, application::SortOrder order)
     const
@@ -74,7 +74,7 @@ namespace nautix::infra {
                     case BySize:
                         return a.size < b.size;
                     case ByOwner:
-                        return a.owner.id() < b.owner.id();
+                        return a.owner.name() < b.owner.name();
                     case ByCreationDate:
                         return a.creation_time < b.creation_time;
                     case ByModificationDate:
@@ -84,7 +84,7 @@ namespace nautix::infra {
                     case ByName:
                     case None:
                     default:
-                        return a.owner.name() < b.owner.name();
+                        return a.name < b.name;
                 }
             });
     }

@@ -65,10 +65,10 @@ TEST_CASE("Sorted by name") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub1);
     std::filesystem::create_directory(sub2);
-    std::filesystem::create_directory(sub3);
+    std::filesystem::create_directory(sub1);
     std::filesystem::create_directory(sub4);
+    std::filesystem::create_directory(sub3);
 
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
@@ -92,13 +92,13 @@ TEST_CASE("Sorted by creation date") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub2);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::filesystem::create_directory(sub4);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::filesystem::create_directory(sub3);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::filesystem::create_directory(sub2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::filesystem::create_directory(sub1);
 
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
@@ -107,10 +107,10 @@ TEST_CASE("Sorted by creation date") {
 
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);
-    REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
-    REQUIRE(result.value()[3].path() == sub3.string());
+    REQUIRE(result.value()[0].path() == sub4.string());
+    REQUIRE(result.value()[1].path() == sub3.string());
+    REQUIRE(result.value()[2].path() == sub2.string());
+    REQUIRE(result.value()[3].path() == sub1.string());
 }
 
 TEST_CASE("Sorted by modification date") {
@@ -124,9 +124,9 @@ TEST_CASE("Sorted by modification date") {
 
     std::filesystem::create_directory(sub2);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::filesystem::create_directory(sub4);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::filesystem::create_directory(sub1);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::filesystem::create_directory(sub3);
 
@@ -138,8 +138,8 @@ TEST_CASE("Sorted by modification date") {
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);
     REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
+    REQUIRE(result.value()[1].path() == sub4.string());
+    REQUIRE(result.value()[2].path() == sub1.string());
     REQUIRE(result.value()[3].path() == sub3.string());
 }
 
@@ -152,13 +152,13 @@ TEST_CASE("Sorted by access date") {
     const auto sub4 = tmp.path / "xyw";
     const auto sub3 = tmp.path / "stu";
 
-    std::filesystem::create_directory(sub2);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::filesystem::create_directory(sub1);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    std::filesystem::create_directory(sub4);
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
     std::filesystem::create_directory(sub3);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::filesystem::create_directory(sub2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    std::filesystem::create_directory(sub4);
 
     auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
     nautix::application::ListDirectories useCase(lister);
@@ -167,10 +167,10 @@ TEST_CASE("Sorted by access date") {
 
     REQUIRE(result.has_value());
     REQUIRE(result->size() == 4);
-    REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
-    REQUIRE(result.value()[3].path() == sub3.string());
+    REQUIRE(result.value()[0].path() == sub1.string());
+    REQUIRE(result.value()[1].path() == sub3.string());
+    REQUIRE(result.value()[2].path() == sub2.string());
+    REQUIRE(result.value()[3].path() == sub4.string());
 }
 
 /*
