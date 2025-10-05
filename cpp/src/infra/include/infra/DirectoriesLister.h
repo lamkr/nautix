@@ -14,7 +14,10 @@ namespace nautix::infra {
         ~DirectoriesLister() override = default;
 
         [[nodiscard]] std::expected<std::vector<domain::Directory>, std::error_code>
-            list_directories( const std::filesystem::path& path, application::SortOrder order) const;
+            list_directories(
+                const std::filesystem::path& path,
+                application::SortOrder order
+            ) const override;
     };
 
     /*[[nodiscard]] std::expected<DirectoryMetadata, std::error_code> get_metadata(const char* path);

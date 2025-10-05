@@ -79,7 +79,8 @@ namespace nautix::infra
                         return std::unexpected(error_code);
                     }
 
-                    directories.emplace_back(std::move(directory).value());
+                    //directories.emplace_back(std::move(directory).value());
+                    directories.push_back(std::move(directory.value()));
                 }
             }
 

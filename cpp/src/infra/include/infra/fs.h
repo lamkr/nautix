@@ -7,16 +7,10 @@
 #include "domain/local_time.h"
 #include "domain/owner.h"
 
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
-//std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
     get_creation_time(const struct stat& stat);
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
-//std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
     get_modification_time(const struct stat& stat);
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
-//std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
     get_access_time(const struct stat& stat);
 
