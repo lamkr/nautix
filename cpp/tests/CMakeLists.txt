@@ -3,6 +3,7 @@ enable_testing()
 set(TEST_SOURCES
         application/ListItems.test.cpp
         application/DeleteItems.test.cpp
+        application/ListDirectoriesUseCase.test.cpp
 )
 
 add_executable(tests
