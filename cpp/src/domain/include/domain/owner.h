@@ -10,11 +10,11 @@ namespace nautix::domain {
         std::string name_{};
 
     public:
-        Owner() : Owner(-1, UNKNOWN_OWNER_NAME) {}
+        Owner() : Owner(static_cast<uid_t>(-1), UNKNOWN_OWNER_NAME) {}
 
-        explicit Owner(const uid_t id, std::string&& name)
+        explicit Owner(const uid_t id, std::string name)
             : id_(id)
-            , name_(name)//std::forward<std::chrono::local_time<std::chrono::system_clock::duration>>(local_time))
+            , name_(std::move(name))//std::forward<std::chrono::local_time<std::chrono::system_clock::duration>>(local_time))
         {}
 
         [[nodiscard]] const std::string& name() const { return name_; }

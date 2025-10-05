@@ -1,10 +1,8 @@
 #pragma once
 
-#include <chrono>
 #include <sys/stat.h>
 #include <expected>
 #include <filesystem>
-#include <system_error>
 
 #include "domain/local_time.h"
 #include "domain/owner.h"
@@ -21,10 +19,6 @@ nautix::domain::LocalTime
 //std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
     get_access_time(const struct stat& stat);
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
-//std::chrono::local_time<std::chrono::duration<long, std::nano>>
-nautix::domain::LocalTime
-    to_local_time(std::chrono::system_clock::time_point time_point);
 
 nautix::domain::Owner get_owner_from_id(const struct stat& stat);
 

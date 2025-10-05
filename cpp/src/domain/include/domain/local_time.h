@@ -2,5 +2,5 @@
 #include <chrono>
 
 namespace nautix::domain {
-    typedef std::chrono::local_time<std::chrono::duration<long, std::nano>> LocalTime;
+    using LocalTime = std::chrono::local_time<std::chrono::system_clock::duration>;
 }

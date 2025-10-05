@@ -35,23 +35,6 @@ nautix::domain::LocalTime
     return to_local_time( time );
 }
 
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
-//std::chrono::local_time<std::chrono::duration<long, std::nano>>
-nautix::domain::LocalTime
-    to_local_time(const std::chrono::system_clock::time_point time_point)
-{
-    // Get the local time zone.
-    const std::chrono::time_zone* local_tz = std::chrono::current_zone();
-    // Create a zoned_time object.
-    // This object associates the utc_time with the local time zone.
-    const std::chrono::zoned_time zt{local_tz, time_point};
-    // Access the local_time from the zoned_time
-    // The local_time is a time_point in the local_t type,
-    // representing the time in the specified time zone.
-    const std::chrono::local_time<std::chrono::duration<long, std::nano>> local_tm = zt.get_local_time();
-    return nautix::domain::LocalTime {local_tm};
-}
-
 std::expected<std::string, std::error_code> get_owner_name(uid_t owner_id) {
     errno = 0;
     if (const passwd* pw = getpwuid(owner_id); pw != nullptr) {
