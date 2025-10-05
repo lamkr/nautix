@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include "infra/fs.h"
+#include "infra/time.h"
 #include "infra/errors.h"
 #include "domain/local_time.h"
 #include "domain/owner.h"

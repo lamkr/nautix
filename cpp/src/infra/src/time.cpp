@@ -1,9 +1,7 @@
 #include "infra/time.h"
 
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
-//std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
-    to_local_time(const std::chrono::system_clock::time_point time_point)
+    to_local_time(const std::chrono::system_clock::time_point& time_point)
 {
     // Get the local time zone.
     const std::chrono::time_zone* local_tz = std::chrono::current_zone();
@@ -17,15 +15,18 @@ nautix::domain::LocalTime
     return nautix::domain::LocalTime {local_tm};
 }
 
-// Função helper para converter o tempo do sistema de arquivos para o nosso tipo LocalTime
-nautix::domain::LocalTime to_local_time2(const std::filesystem::file_time_type& ftime) {
-    const auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+nautix::domain::LocalTime
+    convert_to_local_time(const std::filesystem::file_time_type& file_time)
+{
+    const std::chrono::system_clock::time_point
+        time_point = std::chrono::clock_cast<std::chrono::system_clock>(file_time);
+    return to_local_time(time_point);
+    /*const auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
         ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
-    return std::chrono::current_zone()->to_local(sctp);
+    return std::chrono::current_zone()->to_local(sctp);*/
 }
 
 
-//std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
 std::chrono::local_time<std::chrono::duration<long, std::nano>>
 now0()
 {
@@ -46,7 +47,6 @@ now0()
 
 
 std::chrono::local_time<std::chrono::duration<long, std::nano>>
-// std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::ratio<1, 1000000000>>>
 now()
 {
     const std::chrono::zoned_time<std::chrono::duration<long, std::nano>> local

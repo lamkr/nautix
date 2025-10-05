@@ -9,6 +9,7 @@
 #include "infra/DirectoriesLister.h"
 
 using namespace std::chrono_literals;
+using namespace nautix::application;
 
 // Helper to create temporary test environment.
 struct TempDir {

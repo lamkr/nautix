@@ -7,10 +7,7 @@
 //std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
 //std::chrono::local_time<std::chrono::duration<long, std::nano>>
 nautix::domain::LocalTime
-    to_local_time(const std::chrono::system_clock::time_point time_point);
-
-nautix::domain::LocalTime
-    to_local_time2(const std::filesystem::file_time_type& ftime);
+    to_local_time(const std::chrono::system_clock::time_point& time_point);
 
 //std::chrono::time_point<std::chrono::local_t, std::chrono::duration<long, std::nano>>
 std::chrono::local_time<std::chrono::duration<long, std::nano>>
