@@ -1,12 +1,10 @@
-#include "../include/application/DeleteItems.h"
+#include "application/DeleteItem.h"
+
+#include <expected>
 
 namespace nautix::application {
-
-    void DeleteItems::execute(const std::vector<std::filesystem::path>& paths) const {
-        if (paths.empty()) {
-            return; // Nothing to do
-        }
-        deleter_->deleteItems(paths);
+    std::expected<bool, std::error_code> DeleteItem::execute(const std::filesystem::path& path) const {
+        return deleter_->deleteItem(path);
     }
 
 }

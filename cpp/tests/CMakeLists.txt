@@ -2,8 +2,10 @@ enable_testing()
 
 set(TEST_SOURCES
         application/ListDirectories.integration-test.cpp
-        application/DeleteItems.test.cpp
+        application/RenameItem.integration-test.cpp
+        application/DeleteItem.test.cpp
         application/ListDirectories.test.cpp
+        application/TempDir.h
 )
 
 add_executable(tests

@@ -1,7 +1,13 @@
 #include <libintl.h>
 #include <clocale>
 
+#include "common/include/common/Logger.h"
+
 int main() {
+    // Inicializa o logger como a primeira coisa a ser feita
+    Logger::init();
+    Logger::get()->info("Bem-vindo ao Nautix!");
+
     // Setup locale and i18n
     setlocale(LC_ALL, "");
     bindtextdomain("nautix", "/usr/share/locale"); // Ou outro diretório de instalação

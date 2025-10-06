@@ -61,5 +61,6 @@ std::uintmax_t compute_directory_size(const std::filesystem::path& path) {
 nautix::domain::Owner get_owner_from_id(const struct stat& stat) {
     return nautix::domain::Owner(
         stat.st_uid,
-        get_owner_name(stat.st_uid).value_or(nautix::domain::UNKNOWN_OWNER_NAME) );
+        get_owner_name(stat.st_uid)
+        .value_or(nautix::domain::UNKNOWN) );
 }

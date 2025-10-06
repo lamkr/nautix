@@ -6,7 +6,11 @@ file(GLOB_RECURSE UI_SOURCES
         "src/*.cpp"
         "src/**/*.cpp"
 )
-file(GLOB_RECURSE UI_HEADERS "include/**/*.h")
+file(GLOB_RECURSE UI_HEADERS
+        CONFIGURE_DEPENDS
+        "include/*.h"
+        "include/**/*.h"
+)
 
 message(STATUS "UI_SOURCES: ${UI_SOURCES}")
 message(STATUS "UI_HEADERS: ${UI_HEADERS}")
@@ -30,6 +34,7 @@ target_include_directories(ui
 # A camada de UI DEPENDE da camada de infraestrutura.
 target_link_libraries(ui
     PUBLIC
+        common
         infra
         ${GTKMM_LIBRARIES}
 )

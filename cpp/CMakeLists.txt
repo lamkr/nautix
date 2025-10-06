@@ -34,6 +34,23 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+# Attention: must goes before SPDLOG
+FetchContent_Declare(
+        fmt
+        GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+        GIT_TAG        10.2.1 # Versão compatível com spdlog v1.14.1
+)
+# Torna o alvo 'fmt::fmt' disponível para o restante do projeto
+FetchContent_MakeAvailable(fmt)
+
+FetchContent_Declare(
+        spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG        v1.14.1 # Uma versão recente e estável
+)
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt")
+FetchContent_MakeAvailable(spdlog)
+
 # ATTENTION: Before, must be installed gettext at terminal.
 FetchContent_Declare(
     trompeloeil

@@ -2,15 +2,16 @@
 #include <string>
 
 namespace nautix::domain {
-
-    const auto UNKNOWN_OWNER_NAME = "<unknown>";
+    namespace {
+        constexpr auto UNKNOWN = "<unknown>";
+    }
 
     class Owner {
         uid_t id_;
         std::string name_{};
 
     public:
-        Owner() : Owner(static_cast<uid_t>(-1), UNKNOWN_OWNER_NAME) {}
+        Owner() : Owner(static_cast<uid_t>(-1), UNKNOWN) {}
 
         explicit Owner(const uid_t id, std::string name)
             : id_(id)
@@ -19,5 +20,8 @@ namespace nautix::domain {
 
         [[nodiscard]] const std::string& name() const { return name_; }
         [[nodiscard]] uid_t id() const { return id_; }
+        [[nodiscard]] bool is_unknown() const { return name_==UNKNOWN; }
     };
+
+    static const auto unknown_owner = Owner();
 }

@@ -5,37 +5,33 @@
 #include <catch2/catch_all.hpp>
 
 #include "TempDir.h"
-#include "application/ListDirectories.h"
-#include "infra/DirectoriesLister.h"
+#include "application/RenameItem.h"
+#include "infra/ItemRenamer.h"
 
 using namespace std::chrono_literals;
 using namespace nautix::application;
 
-TEST_CASE("ListDirectories use case [integration test]", "[application][use_case]") {
+TEST_CASE("RenameItem use case [integration test]", "[application][use_case]") {
 
-    SECTION("Return a list of directories") {
+    SECTION("Rename a existing directory") {
         const TempDir tmp;
 
         // Create subdirectories
         const auto sub1 = tmp.path / "subdir1";
         const auto sub2 = tmp.path / "subdir2";
         std::filesystem::create_directory(sub1);
-        std::filesystem::create_directory(sub2);
 
-        // Create a file (should not appear in the directory listing)
-        std::ofstream(tmp.path / "arquivo.txt").put('a');
+        auto renamer = std::make_shared<nautix::infra::ItemRenamer>();
+        RenameItem useCase(renamer);
 
-        auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
-
-        const auto result = useCase.execute(tmp.path);
+        const auto result = useCase.execute(sub1, sub2);
 
         REQUIRE(result.has_value());
-        REQUIRE(result->size() == 2);
-        REQUIRE((result.value()[0].path() == sub1.string() || result.value()[0].path() == sub2.string()));
-        REQUIRE((result.value()[1].path() == sub1.string() || result.value()[1].path() == sub2.string()));
+        REQUIRE(result.value());
+        REQUIRE_FALSE(std::filesystem::exists(sub1));
+        REQUIRE(std::filesystem::exists(sub2));
     }
-
+/*
     SECTION("Directory without subdirectories should return empty list") {
         const TempDir tmp;
         const auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
@@ -210,52 +206,6 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.value()[1].path() == sub3.string());
         REQUIRE(result.value()[2].path() == sub2.string());
         REQUIRE(result.value()[3].path() == sub4.string());
-    }
+    }*/
 }
 
-/*
- * TODO criar com owner diferentes
-TEST_CASE("List directories sorted by owner") {
-    const TempDir tmp;
-
-    // Create subdirectories
-    const auto sub1 = tmp.path / "abc";
-    const auto sub4 = tmp.path / "xyw";
-
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub4);
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
-
-    const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
-
-    REQUIRE(result.size() == 4);
-    REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
-    REQUIRE(result.value()[3].path() == sub3.string());
-}
-
- *TODO falta criar arquivos com tamanhos diferentes dentro de cada dubdr
-
- *TEST_CASE("List directories sorted by size") {
-    const TempDir tmp;
-
-    // Create subdirectories
-    const auto sub1 = tmp.path / "abc";
-    const auto sub4 = tmp.path / "xyw";
-
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub4);
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
-
-    const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
-
-    REQUIRE(result.size() == 4);
-    REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
-    REQUIRE(result.value()[3].path() == sub3.string());
-}
-*/

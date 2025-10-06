@@ -19,8 +19,6 @@ target_sources(domain
     PUBLIC FILE_SET HEADERS FILES ${DOMAIN_HEADERS}
 )
 
-# Adicionamos a pasta 'include' da nossa camada ao path público.
-# Assim, quem depender do 'domain' poderá fazer #include "domain/directory.h".
 target_include_directories(domain
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
