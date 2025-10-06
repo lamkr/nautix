@@ -8,7 +8,23 @@ enum class nautix_error {
 };
 
 class nautix_error_category final : public std::error_category {
+    const std::error_code cause_;
 public:
+
+    explicit nautix_error_category(const std::error_code cause)
+        : std::error_category()
+        , cause_(cause)
+        {}
+
+
+    [[nodiscard]] bool containsCause() const noexcept {
+        return cause_ != std::error_code{};
+    }
+
+    [[nodiscard]] std::error_code cause() const noexcept {
+        return cause_;
+    }
+
     [[nodiscard]] const char* name() const noexcept override {
         return "nautix_error";
     }
@@ -23,9 +39,17 @@ public:
     }
 };
 
-inline const nautix_error_category& nautix_error_category_instance() {
-    static nautix_error_category instance;
+inline const nautix_error_category& nautix_error_category_instance(const std::error_code& cause) {
+    static nautix_error_category instance(cause);
     return instance;
+}
+
+inline std::error_code make_error_code(nautix_error error, const std::error_code& cause) {
+    return {static_cast<int>(error), nautix_error_category_instance(cause)};
+}
+
+inline const nautix_error_category& nautix_error_category_instance() {
+    return nautix_error_category_instance(std::error_code{});
 }
 
 inline std::error_code make_error_code(nautix_error error) {

@@ -3,6 +3,7 @@
 #include <system_error>
 
 #include "common/Logger.h"
+#include "infra/errors.h"
 
 namespace nautix::infra {
     std::expected<bool, std::error_code>
@@ -34,13 +35,12 @@ namespace nautix::infra {
             // A cópia foi bem-sucedida, agora remove o original
             std::filesystem::remove_all(sourcePath, error_code);
             if (error_code) {
-                /*Logger::get()->critical("Move succeeded but source cleanup failed for {}: {}-{}"
+                Logger::get()->critical("Move succeeded but source cleanup failed for {}: {}-{}"
                     , sourcePath.string().c_str()
                     , error_code.value()
                     , error_code.message()
                     );
-                //return std::unexpected(make_error_code(nautix_error::move_cleanup_failed));*/
-                return std::unexpected(error_code);
+                return std::unexpected(make_error_code(nautix_error::move_cleanup_failed, error_code));
             }
 
             return true;
