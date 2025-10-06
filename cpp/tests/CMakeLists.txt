@@ -1,9 +1,9 @@
 enable_testing()
 
 set(TEST_SOURCES
-        application/ListItems.test.cpp
+        application/ListDirectories.integration-test.cpp
         application/DeleteItems.test.cpp
-        application/ListDirectoriesUseCase.test.cpp
+        application/ListDirectories.test.cpp
 )
 
 add_executable(tests

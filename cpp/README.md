@@ -21,6 +21,10 @@ cmake --build build -j
 ctest --output-on-failure --test-dir build/tests
 ```
 
+## Errors list
+/usr/include/asm-generic/errno.h
+/usr/include/asm-generic/errno-base.h
+
 ## Contributing
 
 See CONTRIBUTING.md

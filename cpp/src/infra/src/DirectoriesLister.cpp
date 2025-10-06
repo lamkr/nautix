@@ -57,35 +57,30 @@ namespace nautix::infra
     const {
         std::vector<domain::Directory> directories;
 
-        try {
-            std::error_code error_code;
-            if (!std::filesystem::exists(path, error_code)) {
-                return std::unexpected(std::make_error_code(std::errc::no_such_file_or_directory));
-            }
-            if (!std::filesystem::is_directory(path, error_code)) {
-                return std::unexpected(std::make_error_code(std::errc::not_a_directory));
-            }
+        std::error_code error_code;
+        if (!std::filesystem::exists(path, error_code)) {
+            return std::unexpected(std::make_error_code(std::errc::no_such_file_or_directory));
+        }
+        if (!std::filesystem::is_directory(path, error_code)) {
+            return std::unexpected(std::make_error_code(std::errc::not_a_directory));
+        }
 
-            for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path, error_code)) {
+        for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(path, error_code)) {
+            if (entry.is_directory()) {
+                std::expected<domain::Directory, std::error_code> directory = build_directory(entry.path().c_str());
                 if (error_code) {
                     // Erros podem ocorrer durante a iteração, por exemplo, por falta de permissão
                     return std::unexpected(error_code);
                 }
 
-                if (entry.is_directory()) {
-                    std::expected<domain::Directory, std::error_code> directory = build_directory(entry.path().c_str());
-                    if (error_code) {
-                        // Erros podem ocorrer durante a iteração, por exemplo, por falta de permissão
-                        return std::unexpected(error_code);
-                    }
-
-                    //directories.emplace_back(std::move(directory).value());
-                    directories.push_back(std::move(directory.value()));
-                }
+                //directories.emplace_back(std::move(directory).value());
+                directories.push_back(std::move(directory.value()));
             }
+        }
 
-        } catch (const std::filesystem::filesystem_error& e) {
-            return std::unexpected(e.code());
+        if (error_code) {
+            // Erros podem ocorrer durante a iteração, por exemplo, por falta de permissão
+            return std::unexpected(error_code);
         }
 
         sort_directories_vector(directories, order);
