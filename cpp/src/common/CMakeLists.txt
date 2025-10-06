@@ -1,37 +1,47 @@
-# Define a biblioteca 'common' como uma biblioteca de INTERFACE.
-# Isso significa que ela não produz um arquivo .a ou .so, mas serve para
-# agrupar propriedades para outros alvos.
+# A biblioteca 'common' é STATIC porque agora possui arquivos .cpp (Logger.cpp)
 add_library(common STATIC)
 
-# Encontra os fontes
 file(GLOB_RECURSE COMMON_SOURCES
         CONFIGURE_DEPENDS
         "src/*.cpp"
         "src/**/*.cpp"
 )
+file(GLOB_RECURSE COMMON_HEADERS
+        CONFIGURE_DEPENDS
+        "include/*.h"
+        "include/**/*.h"
+)
 
-target_sources(common PRIVATE ${COMMON_SOURCES})
+message(STATUS "COMMON_SOURCES: ${COMMON_SOURCES}")
+message(STATUS "COMMON_HEADERS: ${COMMON_HEADERS}")
 
-# Adiciona o diretório de include à interface da biblioteca.
-# Qualquer alvo que se vincular a 'common' automaticamente terá este
-# diretório em seu caminho de busca de includes.
+target_sources(common
+    PRIVATE ${COMMON_SOURCES}
+    PUBLIC FILE_SET HEADERS FILES ${COMMON_HEADERS}
+)
+
+# Adiciona os diretórios de include.
+# Usamos PUBLIC para que tanto o 'common' quanto seus consumidores
+# possam encontrar todos os headers necessários.
 target_include_directories(common
-    INTERFACE
+    PUBLIC
+        # 1. O include da própria biblioteca 'common'
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-)
-
-# Como i18n.h depende da biblioteca Gettext (libintl), nós vinculamos
-# a biblioteca 'common' com Gettext.
-# Isso garante que qualquer alvo que usar 'common' também será vinculado
-# automaticamente com Gettext.
-target_link_libraries(common
-    INTERFACE
-        ${GETTEXT_LIBRARIES}
-        spdlog::spdlog
-)
-
-target_include_directories(common
-    INTERFACE
+        
+        # 2. O include da dependência 'spdlog' (ESSA É A LINHA CRÍTICA!)
+        $<BUILD_INTERFACE:${spdlog_SOURCE_DIR}/include> # <-- VERIFIQUE SE ESTA LINHA ESTÁ PRESENTE
+        
+        # 3. O include da dependência 'Gettext'
         ${GETTEXT_INCLUDE_DIRS}
 )
+
+# Vincula as dependências.
+# Usamos PUBLIC para que os consumidores também sejam vinculados.
+target_link_libraries(common
+    PUBLIC
+        spdlog::spdlog
+        ${GETTEXT_LIBRARIES}
+        ${SYSTEMD_LIBRARIES}
+)
+

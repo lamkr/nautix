@@ -53,9 +53,12 @@ std::expected<const char*, std::error_code> get_home_path() noexcept {
 }
 
 std::uintmax_t compute_directory_size(const std::filesystem::path& path) {
-    std::error_code error;
-    const std::uintmax_t size = std::filesystem::file_size(path, error);
-    return !error ? size : 0; // TODO compute dir size;
+    std::size_t count = 0;
+    std::filesystem::directory_options error_code = {};
+    for ([[maybe_unused]] const auto& entry : std::filesystem::directory_iterator(path, error_code)) {
+        ++count;
+    }
+    return count;
 }
 
 nautix::domain::Owner get_owner_from_id(const struct stat& stat) {

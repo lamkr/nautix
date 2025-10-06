@@ -4,6 +4,8 @@
 #include <vector>
 #include <expected>
 #include <filesystem>
+#include <iostream>
+
 #include "domain/directory.h"
 
 // Mock da nossa interface
@@ -78,4 +80,32 @@ TEST_CASE("ListDirectories use case", "[application][use_case]") {
         REQUIRE_FALSE(result.has_value());
         REQUIRE(result.error() == expected_error);
     }
+
+    SECTION("Return directories sorted by owner") {
+        // Arrange
+        std::vector<Directory> expected_dirs;
+        const auto sub2 = "mno";
+        const auto sub1 = "abc";
+        const auto sub4 = "xyw";
+        const auto sub3 = "stu";
+        expected_dirs.emplace_back(Directory(target_path / sub4, sub4, 4096, Owner{1,"user1"}, {}, {}, {}));
+        expected_dirs.emplace_back(Directory(target_path / sub3, sub3, 4096, Owner{2,"user2"}, {}, {}, {}));
+        expected_dirs.emplace_back(Directory(target_path / sub2, sub2, 4096, Owner{3,"user3"}, {}, {}, {}));
+        expected_dirs.emplace_back(Directory(target_path / sub1, sub1, 4096, Owner{4,"user4"}, {}, {}, {}));
+
+        // Expect
+        REQUIRE_CALL(*mock_lister, list_directories(target_path, SortOrder::ByOwner)).RETURN(expected_dirs);
+
+        // Act
+        const auto result = use_case->execute(target_path, SortOrder::ByOwner);
+
+        // Assert
+        REQUIRE(result.has_value());
+        REQUIRE(result.value().size() == 4);
+        REQUIRE(result.value()[0].name() == sub4);
+        REQUIRE(result.value()[1].name() == sub3);
+        REQUIRE(result.value()[2].name() == sub2);
+        REQUIRE(result.value()[3].name() == sub1);
+    }
+
 }

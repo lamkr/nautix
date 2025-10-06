@@ -34,7 +34,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
-# Attention: must goes before SPDLOG
+# ATTENTION: must goes before SPDLOG
 FetchContent_Declare(
         fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -43,6 +43,7 @@ FetchContent_Declare(
 # Torna o alvo 'fmt::fmt' disponível para o restante do projeto
 FetchContent_MakeAvailable(fmt)
 
+# ATTENTION: Before, must be installed: sudo apt-get install libsystemd-dev
 FetchContent_Declare(
         spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -51,7 +52,7 @@ FetchContent_Declare(
 set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt")
 FetchContent_MakeAvailable(spdlog)
 
-# ATTENTION: Before, must be installed gettext at terminal.
+# ATTENTION: Before, must be installed: sudo apt-get install gettext
 FetchContent_Declare(
     trompeloeil
     GIT_REPOSITORY https://github.com/rollbear/trompeloeil.git
@@ -63,17 +64,19 @@ FetchContent_MakeAvailable(trompeloeil)
 find_package(PkgConfig REQUIRED)
 find_package(Gettext REQUIRED) # i18n
 pkg_check_modules(GTKMM REQUIRED gtkmm-4.0)
+pkg_check_modules(SYSTEMD REQUIRED libsystemd)
 
 add_subdirectory(src)
 add_subdirectory(tests)
 
 # Main executable
 add_executable(nautix
-    src/main.cpp
+	src/main.cpp
 )
 
 target_link_libraries(nautix
     PRIVATE
+    	ui
         ${GTKMM_LIBRARIES}
         ${Gettext_LIBRARIES}
 )
@@ -84,5 +87,7 @@ target_include_directories(nautix
         ${Gettext_INCLUDE_DIRS}
 )
 
-link_directories(${GTKMM_LIBRARY_DIRS})
+link_directories(
+    ${GTKMM_LIBRARY_DIRS}
+)
 

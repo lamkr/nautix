@@ -7,7 +7,6 @@ set(TEST_SOURCES
         application/MoveItem.integration-test.cpp
         application/DeleteItem.test.cpp
         application/ListDirectories.test.cpp
-        application/TempDir.h
 )
 
 add_executable(tests

@@ -2,6 +2,8 @@
 
 #include <system_error>
 
+#include "common/Logger.h"
+
 namespace nautix::infra {
     std::expected<bool, std::error_code>
         ItemMover::moveItem(
@@ -21,7 +23,7 @@ namespace nautix::infra {
             // 3. Se sim, inicia o fallback: Cópia + Exclusão
 
             // Opções de cópia para recursividade e tratamento de arquivos existentes
-            const auto copy_options = std::filesystem::copy_options::recursive |
+            constexpr auto copy_options = std::filesystem::copy_options::recursive |
                                       std::filesystem::copy_options::overwrite_existing;
 
             std::filesystem::copy(sourcePath, targetPath, copy_options, error_code);
@@ -32,9 +34,12 @@ namespace nautix::infra {
             // A cópia foi bem-sucedida, agora remove o original
             std::filesystem::remove_all(sourcePath, error_code);
             if (error_code) {
-                // TODO fazer log do erro
-                // Este é um estado problemático: a cópia foi feita, mas o original não foi removido.
-                // É preciso logar e talvez retornar um código de erro especial.
+                /*Logger::get()->critical("Move succeeded but source cleanup failed for {}: {}-{}"
+                    , sourcePath.string().c_str()
+                    , error_code.value()
+                    , error_code.message()
+                    );
+                //return std::unexpected(make_error_code(nautix_error::move_cleanup_failed));*/
                 return std::unexpected(error_code);
             }
 

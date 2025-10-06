@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <fstream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <catch2/catch_all.hpp>
 
@@ -26,7 +27,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         std::ofstream(tmp.path / "arquivo.txt").put('a');
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path);
 
@@ -39,7 +40,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
     SECTION("Directory without subdirectories should return empty list") {
         const TempDir tmp;
         const auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path.string());
 
@@ -52,7 +53,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
 
         // Expect
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path / "this_folder_does_not_exist" );
 
@@ -110,7 +111,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         std::filesystem::create_directory(sub3);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path, SortOrder::ByName);
 
@@ -140,7 +141,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         std::filesystem::create_directory(sub1);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path, SortOrder::ByCreationDate);
 
@@ -170,7 +171,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         std::filesystem::create_directory(sub3);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path, SortOrder::ByModificationDate);
 
@@ -200,7 +201,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         std::filesystem::create_directory(sub4);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
-        nautix::application::ListDirectories useCase(lister);
+        ListDirectories useCase(lister);
 
         const auto result = useCase.execute(tmp.path, SortOrder::ByAccessDate);
 
@@ -211,51 +212,47 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.value()[2].path() == sub2.string());
         REQUIRE(result.value()[3].path() == sub4.string());
     }
+
+    SECTION("List directories sorted by size") {
+        const TempDir tmp;
+
+        // Create subdirectories
+        const auto sub2 = tmp.path / "mno";
+        const auto sub1 = tmp.path / "abc";
+        const auto sub4 = tmp.path / "xyw";
+        const auto sub3 = tmp.path / "stu";
+
+        std::filesystem::create_directory(sub2);
+        std::ofstream(sub2 / "file_0.txt").put('a');
+        std::ofstream(sub2 / "file_1.txt").put('a');
+
+        std::filesystem::create_directory(sub1);
+        std::ofstream(sub1 / "file_2.txt").put('a');
+        std::ofstream(sub1 / "file_3.txt").put('a');
+
+        std::filesystem::create_directory(sub4);
+        std::ofstream(sub4 / "file_4.txt").put('a');
+
+        std::filesystem::create_directory(sub3);
+        std::ofstream(sub3 / "file_5.txt").put('a');
+        std::ofstream(sub3 / "file_6.txt").put('a');
+        std::ofstream(sub3 / "file_7.txt").put('a');
+        std::ofstream(sub3 / "file_8.txt").put('a');
+        std::ofstream(sub3 / "file_9.txt").put('a');
+
+        auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
+        ListDirectories useCase(lister);
+
+        const auto result = useCase.execute(tmp.path, SortOrder::BySize);
+
+        REQUIRE(result.has_value());
+        REQUIRE(result->size() == 4);
+
+        REQUIRE(result.value()[0].path() == sub4.string());
+        REQUIRE(result.value()[1].path() == sub1.string());
+        REQUIRE(result.value()[2].path() == sub2.string());
+        REQUIRE(result.value()[3].path() == sub3.string());
+    }
+
 }
 
-/*
- * TODO criar com owner diferentes
-TEST_CASE("List directories sorted by owner") {
-    const TempDir tmp;
-
-    // Create subdirectories
-    const auto sub1 = tmp.path / "abc";
-    const auto sub4 = tmp.path / "xyw";
-
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub4);
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
-
-    const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
-
-    REQUIRE(result.size() == 4);
-    REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
-    REQUIRE(result.value()[3].path() == sub3.string());
-}
-
- *TODO falta criar arquivos com tamanhos diferentes dentro de cada dubdr
-
- *TEST_CASE("List directories sorted by size") {
-    const TempDir tmp;
-
-    // Create subdirectories
-    const auto sub1 = tmp.path / "abc";
-    const auto sub4 = tmp.path / "xyw";
-
-    std::filesystem::create_directory(sub1);
-    std::filesystem::create_directory(sub4);
-    const Directory dir(tmp.path);
-    constexpr ListDirectories useCase;
-
-    const auto result = useCase.execute(dir, SortOrder::ByAccessDate);
-
-    REQUIRE(result.size() == 4);
-    REQUIRE(result.value()[0].path() == sub2.string());
-    REQUIRE(result.value()[1].path() == sub1.string());
-    REQUIRE(result.value()[2].path() == sub4.string());
-    REQUIRE(result.value()[3].path() == sub3.string());
-}
-*/
