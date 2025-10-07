@@ -14,9 +14,9 @@ namespace nautix::application {
         explicit MoveItem(std::shared_ptr<ports::IItemMover> mover)
             : mover_(std::move(mover)) {}
 
-        [[nodiscard]] std::expected<bool, std::error_code>
+        [[nodiscard]] std::expected<int, std::error_code>
             execute(
-                const std::filesystem::path& sourcePath,
+                const std::vector<std::filesystem::path>& sourcePaths,
                 const std::filesystem::path& targetPath) const;
     };
 

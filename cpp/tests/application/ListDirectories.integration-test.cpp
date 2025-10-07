@@ -14,6 +14,8 @@ using namespace nautix::application;
 
 TEST_CASE("ListDirectories use case [integration test]", "[application][use_case]") {
 
+    std::chrono::milliseconds delay = 150ms;
+    
     SECTION("Return a list of directories") {
         const TempDir tmp;
 
@@ -133,11 +135,11 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         const auto sub3 = tmp.path / "stu";
 
         std::filesystem::create_directory(sub4);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(150ms);
         std::filesystem::create_directory(sub3);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(150ms);
         std::filesystem::create_directory(sub2);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(150ms);
         std::filesystem::create_directory(sub1);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
@@ -163,11 +165,11 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         const auto sub3 = tmp.path / "stu";
 
         std::filesystem::create_directory(sub2);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(delay);
         std::filesystem::create_directory(sub4);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(delay);
         std::filesystem::create_directory(sub1);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(delay);
         std::filesystem::create_directory(sub3);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
@@ -193,11 +195,11 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         const auto sub3 = tmp.path / "stu";
 
         std::filesystem::create_directory(sub1);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(delay);
         std::filesystem::create_directory(sub3);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(delay);
         std::filesystem::create_directory(sub2);
-        std::this_thread::sleep_for(250ms);
+        std::this_thread::sleep_for(delay);
         std::filesystem::create_directory(sub4);
 
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();

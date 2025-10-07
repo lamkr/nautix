@@ -1,10 +1,11 @@
 #include "application/MoveItem.h"
 
 namespace nautix::application {
-    [[nodiscard]] std::expected<bool, std::error_code>
+
+    [[nodiscard]] std::expected<int, std::error_code>
         MoveItem::execute(
-            const std::filesystem::path& sourcePath,
+            const std::vector<std::filesystem::path>& sourcePaths,
             const std::filesystem::path& targetPath ) const {
-        return mover_->moveItem(sourcePath, targetPath);
+        return mover_->moveItems(sourcePaths, targetPath);
     }
 }

@@ -7,9 +7,9 @@ namespace nautix::infra {
 
     class ItemMover final : public application::ports::IItemMover {
     public:
-        std::expected<bool, std::error_code>
-            moveItem(
-                const std::filesystem::path& sourcePath,
+        std::expected<int, std::error_code>
+            moveItems(
+                const std::vector<std::filesystem::path>& sourcePaths,
                 const std::filesystem::path& targetPath) override;
     };
 
