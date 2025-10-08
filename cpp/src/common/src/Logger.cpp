@@ -5,7 +5,7 @@
 #include <vector>
 
 // Variável estática para guardar nosso logger
-static std::shared_ptr<spdlog::logger> s_logger;
+    static std::shared_ptr<spdlog::logger> s_logger;
 
 void Logger::init() {
     // Lista de "sinks" (destinos) para o nosso log
@@ -28,7 +28,7 @@ void Logger::init() {
     s_logger = std::make_shared<spdlog::logger>("nautix", begin(sinks), end(sinks));
     
     // Registra o logger para que possamos acessá-lo globalmente se necessário
-    spdlog::register_logger(s_logger);
+    spdlog::register_or_replace(s_logger);
     
     // Define o nível de log padrão. 'trace' é o mais detalhado.
     s_logger->set_level(spdlog::level::trace);
@@ -40,5 +40,8 @@ void Logger::init() {
 }
 
 std::shared_ptr<spdlog::logger>& Logger::get() {
+    if (!s_logger) {
+        init();
+    }
     return s_logger;
 }

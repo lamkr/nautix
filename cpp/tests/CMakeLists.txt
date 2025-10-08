@@ -4,8 +4,8 @@ set(TEST_SOURCES
         application/ListDirectories.integration-test.cpp
         application/RenameItem.integration-test.cpp
         application/CopyItem.integration-test.cpp
-        application/MoveItem.integration-test.cpp
-        application/DeleteItem.test.cpp
+    application/MoveItems.integration-test.cpp
+    application/DeleteItems.test.cpp
         application/ListDirectories.test.cpp
 )
 

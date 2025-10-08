@@ -16,7 +16,7 @@ namespace nautix::application {
         explicit DeleteItem(std::shared_ptr<ports::IItemDeleter> deleter)
             : deleter_(std::move(deleter)) {}
 
-        std::expected<bool, std::error_code> execute(const std::filesystem::path& path) const;
+        std::expected<void, std::error_code> execute(const std::filesystem::path& path) const;
     };
 
 }

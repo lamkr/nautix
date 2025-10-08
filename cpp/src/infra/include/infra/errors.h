@@ -5,6 +5,9 @@ enum class nautix_error {
     user_not_found = 1,
     directory_not_found = 2,
     move_cleanup_failed = 3,
+    move_directory_to_itself = 4, //"mv: cannot move 'x' to a subdirectory of itself, 'x/x'"
+    move_file_to_itself = 5, //nautilus: 'bla.txt' and 'bla.txt' are the same file
+    move_directory_to_file = 6,
 };
 
 class nautix_error_category final : public std::error_category {
@@ -31,9 +34,13 @@ public:
 
     [[nodiscard]] std::string message(int ev) const override {
         switch (static_cast<nautix_error>(ev)) {
-            case nautix_error::user_not_found: return "User not found"; // TODO use language/idiom
-            case nautix_error::directory_not_found: return "Directory not found"; // TODO use language/idiom
-            case nautix_error::move_cleanup_failed: return "Move cleanup failed"; // TODO use language/idiom
+            // TODO use language/idiom
+            case nautix_error::user_not_found: return "User not found";
+            case nautix_error::directory_not_found: return "Directory not found";
+            case nautix_error::move_cleanup_failed: return "Move cleanup failed";
+            case nautix_error::move_directory_to_itself: return "Cannot move directory to itself";
+            case nautix_error::move_file_to_itself: return "Cannot move file to itself";
+            case nautix_error::move_directory_to_file: return "Cannot move directory to file";
             default: return "Unknown error";
         }
     }

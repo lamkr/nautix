@@ -38,7 +38,7 @@ FetchContent_MakeAvailable(Catch2)
 FetchContent_Declare(
         fmt
         GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-        GIT_TAG        10.2.1 # Versão compatível com spdlog v1.14.1
+        GIT_TAG        11.2.0
 )
 # Torna o alvo 'fmt::fmt' disponível para o restante do projeto
 FetchContent_MakeAvailable(fmt)
@@ -47,7 +47,7 @@ FetchContent_MakeAvailable(fmt)
 FetchContent_Declare(
         spdlog
         GIT_REPOSITORY https://github.com/gabime/spdlog.git
-        GIT_TAG        v1.14.1 # Uma versão recente e estável
+        GIT_TAG        v1.15.3
 )
 set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt")
 FetchContent_MakeAvailable(spdlog)

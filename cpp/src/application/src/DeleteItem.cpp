@@ -3,7 +3,7 @@
 #include <expected>
 
 namespace nautix::application {
-    std::expected<bool, std::error_code> DeleteItem::execute(const std::filesystem::path& path) const {
+    std::expected<void, std::error_code> DeleteItem::execute(const std::filesystem::path& path) const {
         return deleter_->deleteItem(path);
     }
 

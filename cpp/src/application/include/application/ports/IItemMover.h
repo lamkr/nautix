@@ -2,7 +2,6 @@
 
 #include <expected>
 #include <filesystem>
-#include <vector>
 
 namespace nautix::application::ports {
 
@@ -11,14 +10,14 @@ namespace nautix::application::ports {
         virtual ~IItemMover() = default;
 
         /**
-         * @brief Moves one or more items from the file system.
-         * @param sourcePaths Source path of items.
-         * @param targetPath Target path to move items.
-         * @returns Error or total moved items.
+         * @brief Moves an item from the file system.
+         * @param sourcePath Source path of item.
+         * @param targetPath Target path to move item.
+         * @return An empty expected on success, or an error_code on failure.
          */
-        virtual std::expected<int, std::error_code>
-            moveItems(
-                const std::vector<std::filesystem::path>& sourcePaths,
+        virtual std::expected<void, std::error_code>
+            moveItem(
+                const std::filesystem::path& sourcePath,
                 const std::filesystem::path& targetPath) = 0;
     };
 
