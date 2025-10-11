@@ -14,9 +14,10 @@ using namespace nautix::application;
 
 TEST_CASE("ListDirectories use case [integration test]", "[application][use_case]") {
 
-    std::chrono::milliseconds delay = 150ms;
+    auto delay = 150ms;
     
-    SECTION("Return a list of directories") {
+    SECTION("should get list of directories") {
+        // Arrange
         const TempDir tmp;
 
         // Create subdirectories
@@ -31,15 +32,17 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
         ListDirectories useCase(lister);
 
+        // Act
         const auto result = useCase.execute(tmp.path);
 
+        // Assert
         REQUIRE(result.has_value());
         REQUIRE(result->size() == 2);
         REQUIRE((result.value()[0].path() == sub1.string() || result.value()[0].path() == sub2.string()));
         REQUIRE((result.value()[1].path() == sub1.string() || result.value()[1].path() == sub2.string()));
     }
 
-    SECTION("Directory without subdirectories should return empty list") {
+    SECTION("should get empty list to empty directory") {
         const TempDir tmp;
         const auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
         ListDirectories useCase(lister);
@@ -50,10 +53,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result->empty());
     }
 
-    SECTION("Return error if path not found") {
+    SECTION("should fail if path not found") {
         const TempDir tmp;
 
-        // Expect
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
         ListDirectories useCase(lister);
 
@@ -66,10 +68,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.error() == expected_error);
     }
 
-    SECTION("Return error if path is not a directory") {
+    SECTION("should fail if path is not a directory") {
         const TempDir tmp;
 
-        // Create a file (should not appear in the directory listing)
         std::string filename = "arquivo.txt";
         std::ofstream(tmp.path / filename).put('a');
 
@@ -85,7 +86,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.error() == expected_error);
     }
 
-    SECTION("Return error if current user have forbidden access to path") {
+    SECTION("should fail if current user have forbidden access to path") {
+        if ( geteuid() == 0 ) FAIL("Current user cannot be root");
+
         auto lister = std::make_shared<nautix::infra::DirectoriesLister>();
         ListDirectories useCase(lister);
 
@@ -98,10 +101,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.error() == expected_error);
     }
 
-    SECTION("Sorted by name") {
+    SECTION("should get list sorted by name") {
         const TempDir tmp;
 
-        // Create subdirectories
         const auto sub2 = tmp.path / "mno";
         const auto sub1 = tmp.path / "abc";
         const auto sub4 = tmp.path / "xyw";
@@ -125,10 +127,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.value()[3].path() == sub4.string());
     }
 
-    SECTION("Sorted by creation date") {
+    SECTION("should get list sorted by creation date") {
         const TempDir tmp;
 
-        // Create subdirectories
         const auto sub2 = tmp.path / "mno";
         const auto sub1 = tmp.path / "abc";
         const auto sub4 = tmp.path / "xyw";
@@ -155,10 +156,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.value()[3].path() == sub1.string());
     }
 
-    SECTION("Sorted by modification date") {
+    SECTION("should get list sorted by modification date") {
         const TempDir tmp;
 
-        // Create subdirectories
         const auto sub2 = tmp.path / "mno";
         const auto sub1 = tmp.path / "abc";
         const auto sub4 = tmp.path / "xyw";
@@ -185,10 +185,9 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.value()[3].path() == sub3.string());
     }
 
-    SECTION("Sorted by access date") {
+    SECTION("should get list sorted by access date") {
         const TempDir tmp;
 
-        // Create subdirectories
         const auto sub2 = tmp.path / "mno";
         const auto sub1 = tmp.path / "abc";
         const auto sub4 = tmp.path / "xyw";
@@ -215,7 +214,7 @@ TEST_CASE("ListDirectories use case [integration test]", "[application][use_case
         REQUIRE(result.value()[3].path() == sub4.string());
     }
 
-    SECTION("List directories sorted by size") {
+    SECTION("should get list sorted by size") {
         const TempDir tmp;
 
         // Create subdirectories

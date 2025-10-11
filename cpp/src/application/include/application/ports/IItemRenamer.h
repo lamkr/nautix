@@ -15,7 +15,8 @@ namespace nautix::application::ports {
          * @param newPath
          * @returns Error or success.
          */
-        virtual std::expected<bool, std::error_code> renameItem(const std::filesystem::path& oldPath, const std::filesystem::path& newPath) = 0;
+        virtual std::expected<bool, std::error_code> renameItem(
+            const std::filesystem::path& oldPath, const std::filesystem::path& newPath) = 0;
     };
 
 } // namespace nautix::application

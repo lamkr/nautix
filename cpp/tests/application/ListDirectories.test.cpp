@@ -30,7 +30,7 @@ TEST_CASE("ListDirectories use case", "[application][use_case]") {
     const std::filesystem::path target_path = "/home/user";
     constexpr auto sort_order = SortOrder::ByName;
 
-    SECTION("should successfully return a list of directories") {
+    SECTION("should get list of directories") {
         // Arrange
         std::vector<Directory> expected_dirs;
         expected_dirs.emplace_back(Directory(target_path / "Downloads", "Downloads", 4096, {}, {}, {}, {}));
@@ -48,7 +48,7 @@ TEST_CASE("ListDirectories use case", "[application][use_case]") {
         REQUIRE(result.value()[0].name() == "Downloads");
     }
 
-    SECTION("should return an error if the lister fails") {
+    SECTION("should fail if path not found") {
         // Arrange
         const auto expected_error = std::make_error_code(std::errc::no_such_file_or_directory);
 
@@ -64,7 +64,7 @@ TEST_CASE("ListDirectories use case", "[application][use_case]") {
         REQUIRE(result.error() == expected_error);
     }
 
-    SECTION("should return an error if path is not a directory") {
+    SECTION("should fail if path is not a directory") {
         const auto expected_error = std::make_error_code(std::errc::not_a_directory);
         // Arrange
         std::vector<Directory> expected_dirs;
@@ -81,7 +81,7 @@ TEST_CASE("ListDirectories use case", "[application][use_case]") {
         REQUIRE(result.error() == expected_error);
     }
 
-    SECTION("Return directories sorted by owner") {
+    SECTION("should get list sorted by owner") {
         // Arrange
         std::vector<Directory> expected_dirs;
         const auto sub2 = "mno";

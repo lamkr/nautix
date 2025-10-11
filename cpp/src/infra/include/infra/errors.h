@@ -8,6 +8,7 @@ enum class nautix_error {
     move_directory_to_itself = 4, //"mv: cannot move 'x' to a subdirectory of itself, 'x/x'"
     move_file_to_itself = 5, //nautilus: 'bla.txt' and 'bla.txt' are the same file
     move_directory_to_file = 6,
+    directory_exists = 7,
 };
 
 class nautix_error_category final : public std::error_category {
@@ -41,6 +42,7 @@ public:
             case nautix_error::move_directory_to_itself: return "Cannot move directory to itself";
             case nautix_error::move_file_to_itself: return "Cannot move file to itself";
             case nautix_error::move_directory_to_file: return "Cannot move directory to file";
+            case nautix_error::directory_exists: return "Directory exists";
             default: return "Unknown error";
         }
     }

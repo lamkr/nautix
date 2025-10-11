@@ -36,7 +36,7 @@ TEST_CASE("DeleteItem use case [integration test]", "[application][use_case]") {
         REQUIRE_FALSE(std::filesystem::exists(filepath));
     }
 
-    SECTION("should return an error when file deletion fails") {
+    SECTION("should fail deleting an unacessible file") {
         if ( geteuid() == 0 ) FAIL("Current user cannot be root");
 
         // Arrange
@@ -44,6 +44,26 @@ TEST_CASE("DeleteItem use case [integration test]", "[application][use_case]") {
         const TempDir tmp;
 
         const auto filepath = "/usr/bin/sudo";
+
+        const auto deleter = std::make_shared<nautix::infra::ItemDeleter>();
+        DeleteItem useCase(deleter);
+
+        // Act
+        auto result = useCase.execute(filepath);
+
+        // Assert
+        REQUIRE_FALSE(result.has_value());
+        REQUIRE(result.error() == expected_error);
+    }
+
+    SECTION("should fail deleting an unacessible directory") {
+        if ( geteuid() == 0 ) FAIL("Current user cannot be root");
+
+        // Arrange
+        const auto expected_error = std::make_error_code(std::errc::permission_denied);
+        const TempDir tmp;
+
+        const auto filepath = "/usr/bin";
 
         const auto deleter = std::make_shared<nautix::infra::ItemDeleter>();
         DeleteItem useCase(deleter);
