@@ -6,6 +6,7 @@ set(TEST_SOURCES
         application/CopyItem.integration-test.cpp
     application/MoveItems.integration-test.cpp
     application/DeleteItems.test.cpp
+    application/DeleteItems.integration-test.cpp
         application/ListDirectories.test.cpp
 )
 

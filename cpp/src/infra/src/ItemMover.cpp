@@ -10,8 +10,6 @@ namespace nautix::infra {
         const std::filesystem::path& targetPath) {
         std::error_code error_code;
 
-        // --- Verificações Iniciais ---
-
         // Verificação fundamental: a origem existe?
         if (!std::filesystem::exists(sourcePath, error_code)) {
             Logger::get()->error("Move failed: Source path '{}' does not exist.", sourcePath);
@@ -24,7 +22,7 @@ namespace nautix::infra {
             if (std::filesystem::is_directory(sourcePath)) {
                 return std::unexpected(make_error_code(nautix_error::move_directory_to_itself));
             }
-            return std::unexpected(make_error_code(nautix_error::move_file_to_itself));
+            return std::unexpected(make_error_code(nautix_error::move_file_to_itself, error_code));
         }
 
         std::filesystem::path finalTargetPath;
@@ -39,9 +37,9 @@ namespace nautix::infra {
 
         // Check move a directory to an existing file.
         if (std::filesystem::is_directory(sourcePath) && std::filesystem::is_regular_file(finalTargetPath, error_code)) {
-            Logger::get()->error("Move failed: Cannot move a directory '{}' onto a file '{}'.", sourcePath,
+            Logger::get()->error("Move failed: Cannot move a directory '{}' onto file '{}'.", sourcePath,
                 finalTargetPath);
-            return std::unexpected(make_error_code(nautix_error::move_directory_to_file));
+            return std::unexpected(make_error_code(nautix_error::move_directory_to_file, error_code));
         }
 
         // Check if final target already exists.
@@ -57,44 +55,46 @@ namespace nautix::infra {
             while (!parent.empty() && parent != parent.root_path()) {
                 if (std::filesystem::equivalent(parent, sourcePath, error_code)) {
                     Logger::get()->error(
-                        "Move failed: Cannot move directory '{}' into a subdirectory of itself.",
-                        sourcePath);
+                        "Move failed: Cannot move directory '{}' into a subdirectory of itself '{}'.",
+                        sourcePath, targetPath);
                     return std::unexpected(make_error_code(nautix_error::move_directory_to_itself));
                 }
                 parent = parent.parent_path();
             }
         }
 
-
         error_code.clear();
-        std::filesystem::rename(sourcePath, finalTargetPath, error_code);
 
+        std::filesystem::rename(sourcePath, finalTargetPath, error_code);
         if (!error_code) {
             return {}; // Sucesso!
         }
 
         if (error_code == std::errc::cross_device_link) {
-            Logger::get()->info("Cross-device move for '{}'. Falling back to copy+delete.", sourcePath);
+            Logger::get()->info("Move information: Cross-device move for '{}' to '{}'. Falling back to copy and delete.",
+                sourcePath, finalTargetPath);
 
             constexpr auto copy_options = std::filesystem::copy_options::recursive;
             std::filesystem::copy(sourcePath, finalTargetPath, copy_options, error_code);
 
             if (error_code) {
-                Logger::get()->error("Fallback copy failed for '{}': {}", sourcePath, error_code.message());
+                Logger::get()->error("Move failed: Fallback copy failed for '{}' to '{}': {}-{}",
+                    sourcePath, finalTargetPath, error_code.value(), error_code.message());
                 return std::unexpected(error_code);
             }
 
             std::filesystem::remove_all(sourcePath, error_code);
             if (error_code) {
-                Logger::get()->critical("Move succeeded but source cleanup failed for {}: {}-{}",
+                Logger::get()->critical("Move failed: Source cleanup failed for {}: {}-{}",
                     sourcePath, error_code.value(), error_code.message());
-                return std::unexpected(make_error_code(nautix_error::move_cleanup_failed));
+                return std::unexpected(make_error_code(nautix_error::move_cleanup_failed, error_code));
             }
 
             return {};
         }
 
-        Logger::get()->error("Move failed for '{}': {}", sourcePath, error_code.message());
+        Logger::get()->error("Move failed: '{}' to '{}': {}-{}", sourcePath, finalTargetPath,
+            error_code.value(), error_code.message());
         return std::unexpected(error_code);
     }
-} // namespace nautix::infra
+}
