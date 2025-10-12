@@ -1,37 +1,44 @@
-cmake_minimum_required(VERSION 3.28)
+enable_testing()
 
 set(TEST_SOURCES
-        application/test_list_directories.cpp
-        infra/mock_directories_lister.cpp
-        infra/mock_directories_lister.h
+    application/ListDirectories.integration-test.cpp
+    application/RenameItem.integration-test.cpp
+    application/CopyItem.integration-test.cpp
+    application/MoveItems.integration-test.cpp
+    application/DeleteItems.test.cpp
+    application/DeleteItems.integration-test.cpp
+    application/ListDirectories.test.cpp
+    ui/main_window.test.cpp
 )
 
-add_executable(test_list_directories ${TEST_SOURCES})
+add_executable(tests
+    ${TEST_SOURCES}
+)
 
-target_link_libraries(test_list_directories
-        PRIVATE
+# Adicione também os diretórios de include do Gettext
+target_include_directories(tests
+    PRIVATE
+        ${Gettext_INCLUDE_DIRS}
+        ${GTKMM_INCLUDE_DIRS}
+        ${LIBADWAITA_INCLUDE_DIRS}
+)
+
+target_link_libraries(tests
+    PRIVATE
+        ui
         Catch2::Catch2WithMain
-        domain
-        application
-        infra
+        trompeloeil
+        ${Gettext_INCLUDE_DIRS}
+        ${GTKMM_LIBRARIES}
+        ${LIBADWAITA_LIBRARIES}
 )
 
-include(FetchContent)
-FetchContent_Declare(
-    catch2
-    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG v3.10.0
-)
-FetchContent_MakeAvailable(catch2)
-
+include(CTest)
 include(Catch)
-catch_discover_tests(test_list_directories)
+catch_discover_tests(tests)
 
 # Enable ASAN in Debug builds
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(test_list_directories PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
-    target_link_options(test_list_directories PRIVATE -fsanitize=address,undefined)
+    target_compile_options(tests PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
+    target_link_options(tests PRIVATE -fsanitize=address,undefined)
 endif()
-
-# Adiciona o executável à suíte de testes do CTest
-add_test(NAME unit_tests COMMAND run_tests)

@@ -1,0 +1,87 @@
+#include "infra/ItemMover.h"
+
+#include <system_error>
+#include <fmt/std.h>
+#include <fmt/core.h>
+#include "common/Logger.h"
+#include "infra/errors.h"
+
+namespace nautix::infra {
+    std::expected<void, std::error_code>
+            ItemMover::moveItem(
+                const std::filesystem::path& sourcePath,
+                const std::filesystem::path& targetPath)
+    {
+        constexpr std::expected<void, std::error_code> success{};
+        std::error_code error_code;
+
+        // If paths are the identicals, return error.
+        if ( sourcePath == targetPath ) {
+            Logger::get()->error("Cannot move item to itself: {} -> {}",
+                sourcePath, targetPath);
+            if (std::filesystem::is_directory(sourcePath)) {
+                return std::unexpected(make_error_code(nautix_error::move_directory_to_itself));
+            }
+            else {
+                return std::unexpected(make_error_code(nautix_error::move_file_to_itself));
+            }
+        }
+
+        /*// Garante que o diretório de destino existe.
+        if (!std::filesystem::is_directory(targetPath, error_code)) {
+            Logger::get()->error("Move operation failed: Target path is not a directory: '{}'",
+                targetPath);
+            return std::unexpected(std::make_error_code(std::errc::not_a_directory));
+        }*/
+
+        /*const auto finalTargetPath = targetPath / sourcePath.filename();
+        // Does not copy file to itself.
+        if (std::filesystem::is_regular_file(finalTargetPath) && std::filesystem::exists(finalTargetPath) ) {
+            return std::unexpected(make_error_code(std::errc::file_exists));
+        }
+        // Limpa o código de erro antes da próxima operação.
+        error_code.clear(); */
+
+        // 1. Tenta a operação rápida e atômica 'rename' primeiro.
+        std::filesystem::rename(sourcePath, targetPath, error_code);
+        if (!error_code) {
+            return success;
+        }
+
+        // 2. Se falhou, verifica se foi um erro de "cross-device".
+        //if (error_code == std::errc::cross_device_link) {
+            Logger::get()->info("Cross-device move detected for '{}'. Falling back to copy+delete.", sourcePath);
+
+            // 3. Se sim, inicia o fallback: Cópia + Exclusão.
+            constexpr auto copy_options = std::filesystem::copy_options::recursive;
+            //constexpr auto copy_options = std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing;
+            std::filesystem::copy(sourcePath, targetPath, copy_options, error_code);
+
+            if (error_code) {
+                Logger::get()->error("Fallback copy failed for '{}': {}", sourcePath, error_code.message());
+                // Retorna o erro da cópia e o número de itens movidos até agora.
+                return std::unexpected(error_code);
+            }
+
+            // A cópia foi bem-sucedida, agora remove o original.
+            std::filesystem::remove_all(sourcePath, error_code);
+            if (error_code) {
+                Logger::get()->critical("Move succeeded but source cleanup failed for {}: {}-{}"
+                    , sourcePath
+                    , error_code.value()
+                    , error_code.message()
+                    );
+                // A operação foi "bem-sucedida" do ponto de vista do usuário, mas o erro de limpeza é grave.
+                // Paramos aqui e retornamos o erro para a UI.
+                return std::unexpected(make_error_code(nautix_error::move_cleanup_failed, error_code));
+            }
+
+            return success;
+        //}
+/*
+        // 4. Se falhou por qualquer outro motivo (permissão, etc.), para tudo e retorna o erro.
+        Logger::get()->error("Move failed for '{}': {}", sourcePath, error_code.message());
+        return std::unexpected(error_code);*/
+    }
+}
+

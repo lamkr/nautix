@@ -6,3 +6,6 @@ build/
 *.lock
 **/Makefile
 **/cmake_install.cmake
+
+*.zip
+**/*.zip
