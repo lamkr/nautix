@@ -33,7 +33,7 @@ target_include_directories(common
         $<BUILD_INTERFACE:${spdlog_SOURCE_DIR}/include> # <-- VERIFIQUE SE ESTA LINHA ESTÁ PRESENTE
         
         # 3. O include da dependência 'Gettext'
-        ${GETTEXT_INCLUDE_DIRS}
+        ${Gettext_INCLUDE_DIRS}
 )
 
 # Vincula as dependências.
@@ -41,7 +41,7 @@ target_include_directories(common
 target_link_libraries(common
     PUBLIC
         spdlog::spdlog
-        ${GETTEXT_LIBRARIES}
+        ${Gettext_LIBRARIES}
         ${SYSTEMD_LIBRARIES}
 )
 

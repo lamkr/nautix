@@ -1,4 +1,36 @@
-#include <libintl.h>
+#include <gtkmm/application.h>
+#include <adwaita.h>
+#include <iostream>
+#include "ui/MainWindow.h"
+
+void load_css_data() {
+    const auto css_provider = Gtk::CssProvider::create();
+
+    css_provider->load_from_data(
+        ".status-bar {"
+        "   border-radius: 0;"
+        "}"
+    );
+
+    // Adiciona o provedor ao display padrão para que ele se aplique a todas as janelas.
+    Gtk::StyleContext::add_provider_for_display(
+        Gdk::Display::get_default(),
+        css_provider,
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION
+    );
+}
+
+int main(int argc, char* argv[]) {
+    adw_init();
+    const auto app = Gtk::Application::create("org.nautix.Nautix", Gio::Application::Flags::DEFAULT_FLAGS);
+
+    app->signal_startup().connect([]() {
+        load_css_data();
+    });
+
+    return app->make_window_and_run<nautix::ui::MainWindow>(argc, argv);
+}
+/*#include <libintl.h>
 #include <clocale>
 
 #include "common/include/common/Logger.h"
@@ -15,7 +47,7 @@ int main() {
     return 0;
 }
 
-/*import <chrono>
+*import <chrono>
 import <iostream>
 import <string>
 import <filesystem>

@@ -1,31 +1,36 @@
 enable_testing()
 
 set(TEST_SOURCES
-        application/ListDirectories.integration-test.cpp
-        application/RenameItem.integration-test.cpp
-        application/CopyItem.integration-test.cpp
+    application/ListDirectories.integration-test.cpp
+    application/RenameItem.integration-test.cpp
+    application/CopyItem.integration-test.cpp
     application/MoveItems.integration-test.cpp
     application/DeleteItems.test.cpp
     application/DeleteItems.integration-test.cpp
-        application/ListDirectories.test.cpp
+    application/ListDirectories.test.cpp
+    ui/main_window.test.cpp
 )
 
 add_executable(tests
-        ${TEST_SOURCES})
-
-target_link_libraries(tests
-        PRIVATE
-            application
-            infra
-            Catch2::Catch2WithMain
-            trompeloeil
-            ${GETTEXT_LIBRARIES}
+    ${TEST_SOURCES}
 )
 
 # Adicione também os diretórios de include do Gettext
 target_include_directories(tests
     PRIVATE
-        ${GETTEXT_INCLUDE_DIRS}
+        ${Gettext_INCLUDE_DIRS}
+        ${GTKMM_INCLUDE_DIRS}
+        ${LIBADWAITA_INCLUDE_DIRS}
+)
+
+target_link_libraries(tests
+    PRIVATE
+        ui
+        Catch2::Catch2WithMain
+        trompeloeil
+        ${Gettext_INCLUDE_DIRS}
+        ${GTKMM_LIBRARIES}
+        ${LIBADWAITA_LIBRARIES}
 )
 
 include(CTest)

@@ -8,14 +8,10 @@
 
 #include "domain/directory.h"
 
-// Mock da nossa interface
 class MockDirectoriesLister final : public nautix::application::IDirectoriesLister {
 public:
-    // --- CORREÇÃO AQUI ---
-    // 1. Criamos um alias para o tipo de retorno que contém vírgula.
     using ListResult = std::expected<std::vector<nautix::domain::Directory>, std::error_code>;
 
-    // 2. A macro agora usa o alias 'ListResult', que não tem vírgulas.
     MAKE_CONST_MOCK2(list_directories,
                      ListResult(const std::filesystem::path&, nautix::application::SortOrder));
 };
