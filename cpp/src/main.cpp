@@ -10,6 +10,14 @@ void load_css_data() {
         ".status-bar {"
         "   border-radius: 0;"
         "}"
+        ".solid-csd windowcontrols, "
+        ".solid-csd headerbar {"
+        "   border-radius: 0;"
+        "   box-shadow: none;"
+        "}"
+        "window.solid-csd {"
+        "  border-radius: 0;"
+        "}"
     );
 
     // Adiciona o provedor ao display padrão para que ele se aplique a todas as janelas.
@@ -20,7 +28,7 @@ void load_css_data() {
     );
 }
 
-int main(int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
     adw_init();
     const auto app = Gtk::Application::create("org.nautix.Nautix", Gio::Application::Flags::DEFAULT_FLAGS);
 

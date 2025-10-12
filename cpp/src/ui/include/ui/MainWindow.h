@@ -8,7 +8,7 @@
 
 namespace nautix::ui {
 
-    class MainWindow : public Gtk::ApplicationWindow {
+    class MainWindow final : public Gtk::ApplicationWindow {
         AdwTabView* tabView_;
         NavigationPanel* navigationPanel_;
         ContentView* contentView_;

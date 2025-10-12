@@ -2,6 +2,7 @@
 
 namespace nautix::ui {
     MainWindow::MainWindow() {
+        get_style_context()->add_class("solid-csd");
         set_title("Nautix");
 
         maximize();
@@ -18,6 +19,7 @@ namespace nautix::ui {
 
         // 3. Cria o divisor redimensionável e adiciona os painéis esquerdo e direito
         auto paned = Gtk::Paned(Gtk::Orientation::HORIZONTAL);
+        paned.set_wide_handle();
         paned.set_start_child(*navigationPanel_);
         paned.set_end_child(*contentView_);
         paned.set_position(280); // Largura inicial do painel de navegação
