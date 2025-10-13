@@ -2,23 +2,25 @@
 
 #include <adwaita.h>
 #include <gtkmm.h>
-#include "ui/ContentView.h"
-#include "ui/NavigationPanel.h"
-#include "ui/StatusBar.h"
 
 namespace nautix::ui {
 
     class MainWindow final : public Gtk::ApplicationWindow {
-        AdwTabView* tabView_;
-        NavigationPanel* navigationPanel_;
-        ContentView* contentView_;
-        StatusBar* statusBar_;
-        // Core UI Components for the new MVP
-        Gtk::Paned m_main_paned;          // Resizable container
+        static void on_new_tab_callback(Gtk::Button& button, gpointer user_data);
 
-        Glib::RefPtr<Gtk::Builder> m_refBuilder;
+        // Membros da classe para manter o estado
+        AdwTabView* tab_view_ = nullptr;
+        int tab_count_ = 0;
+
+        void initialize_window();
+        void build_content();
+        Gtk::HeaderBar* create_header_bar();
+        void add_new_tab_button(Gtk::HeaderBar* header_bar);
+
     public:
         explicit MainWindow();
+
+        void on_new_tab();
     };
 
-} // namespace nautix::ui
+}
