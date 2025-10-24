@@ -1,4 +1,60 @@
 #include <gtkmm/application.h>
+#include <gtkmm/builder.h>
+
+#include "adw/Application.h"
+
+class MyWindow : public Gtk::Window {
+public:
+    MyWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& p_builder);
+    ~MyWindow() override;
+
+protected:
+    void on_button_clicked();
+
+private:
+    Glib::RefPtr<Gtk::Button> m_button;
+};
+
+int main(int argc, char* argv[]) {
+    adw_init();
+
+    GtkBuilder* builder = gtk_builder_new();
+    if (gtk_builder_add_from_file(builder, "main.ui", NULL) == 0) {
+        g_printerr("Error loading UI file: builder.ui\n");
+        g_object_unref(builder);
+        return 1;
+    }
+
+    // Get the main window object by its ID
+    auto windows = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+    if (windows) {
+        g_printerr("Error: Could not get 'main_window' object.\n");
+        g_object_unref(builder);
+        return 1;
+    }
+
+    auto adw_app = adw_application_new("blaal", G_APPLICATION_DEFAULT_FLAGS);
+
+    adw_gtk_application_add_window(adw_app, GTK_WINDOW(windows));
+
+    /*auto gtkapp = Gtk::Application::create("org.nautix.app");
+    gtkapp->signal_startup().connect([]() {
+        //load_css_data();
+    });
+    gtkapp->run(argc, argv);
+
+    auto app = adw::Application::create("org.nautix.app");
+    return app->run(argc, argv);
+    auto app = adw::Application::create("org.nautix.app");
+
+    app->signal_startup().connect([]() {
+    });
+
+    return app->run(argc, argv);*/
+
+}
+
+/*#include <gtkmm/application.h>
 #include <adwaita.h>
 #include <iostream>
 #include "ui/MainWindow.h"
@@ -38,6 +94,7 @@ int main(const int argc, char* argv[]) {
 
     return app->make_window_and_run<nautix::ui::MainWindow>(argc, argv);
 }
+*/
 /*#include <libintl.h>
 #include <clocale>
 
@@ -55,67 +112,4 @@ int main() {
     return 0;
 }
 
-*import <chrono>
-import <iostream>
-import <string>
-import <filesystem>
-
-using namespace nautix::domain;
-using namespace nautix::application;
-
-using namespace std::chrono;
-
-int main0() {
-    // 1. Create a utc_time point
-    // Example: January 1, 2025, 12:00:00 UTC
-    constexpr auto utc_tp = sys_days{2025y/1/1} + 12h;
-
-    // 2. Get the local time zone
-    // current_zone() returns a pointer to the current system's time zone.
-
-    const time_zone* local_tz = std::chrono::current_zone();//->to_local(utc_tp);
-
-    // 3. Create a zoned_time object
-    // This object associates the utc_time with the local time zone.
-    const zoned_time zt{local_tz, utc_tp};
-
-    // 4. Access the local_time from the zoned_time
-    // The local_time is a time_point in the local_t type,
-    // representing the time in the specified time zone.
-    local_time<std::chrono::system_clock::duration> local_tp = zt.get_local_time();
-
-    // Optional: Format and print the results
-    std::cout << "UTC Time: " << utc_tp << std::endl;
-    std::cout << "Local Time: " << zt << std::endl; // zoned_time formats automatically to local time
-    std::cout << "Local Time (explicit access): " << local_tp << std::endl;
-
-    return 0;
-}
-
-int main() {
-    nautix::infra::SystemMetadataProvider provider;
-    std::expected<Directory, std::error_code> dir = Directory::home(provider);
-    const app::ListDirectories useCase(provider);
-
-    std::cout << "d.p1=" << &dir->path() << ":" << dir->path() << std::endl;
-    fs::path path = dir->path();
-    std::cout << "p1=" << &path << ":" << path << std::endl;
-    path = "upalee";
-
-    std::cout << "d.p1=" << &dir->path() << ":" << dir->path() << std::endl;
-    std::cout << "p1=" << &path << ":" << path << std::endl;
-
-    std::string owner_name = dir->get_owner_name().value();
-    std::cout << "1=" << &owner_name << ":" << owner_name << std::endl;
-
-    owner_name = "upalele";
-    std::cout << "1=" << &owner_name << ":" << owner_name << std::endl;
-
-    owner_name = dir->get_owner_name().value();
-    std::cout << "2=" << &owner_name << ":" << owner_name << std::endl;
-
-    owner_name = "upalele";
-    std::cout << "2=" << &owner_name << ":" << owner_name << std::endl;
-
-    return 0;
-}*/
+*/

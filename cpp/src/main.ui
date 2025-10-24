@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <object class="AdwWindow" id="main_window">
+        <child>
+            <object class="AdwBreakpoint">
+                <condition>max-width: 500px</condition>
+                <setter object="overview_btn" property="visible">True</setter>
+                <setter object="new_tab_btn" property="visible">False</setter>
+                <setter object="tab_bar" property="visible">False</setter>
+            </object>
+        </child>
+        <property name="content">
+            <object class="AdwTabOverview">
+                <property name="view">view</property>
+                <property name="enable-new-tab">True</property>
+                <property name="child">
+                    <object class="AdwToolbarView">
+                        <property name="top-bar-style">raised</property>
+                        <child type="top">
+                            <object class="AdwHeaderBar">
+                                <child type="end">
+                                    <object class="AdwTabButton" id="overview_btn">
+                                        <property name="visible">False</property>
+                                        <property name="view">view</property>
+                                        <property name="action-name">overview.open</property>
+                                    </object>
+                                </child>
+                                <child type="end">
+                                    <object class="GtkButton" id="new_tab_btn">
+                                        <property name="icon-name">tab-new-symbolic</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child type="top">
+                            <object class="AdwTabBar" id="tab_bar">
+                                <property name="view">view</property>
+                            </object>
+                        </child>
+                        <property name="content">
+                            <object class="AdwTabView" id="view"/>
+                        </property>
+                    </object>
+                </property>
+            </object>
+        </property>
+    </object>
+</interface>

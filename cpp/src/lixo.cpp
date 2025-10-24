@@ -1,99 +1,140 @@
-#include <gtk/gtk.h>
+#include <gtkmm.h>
 #include <adwaita.h>
-#include <string>
-#include <print>
 #include <memory>
-#include <gtkmm/button.h>
+#include <iostream>
+#include <glibmm.h>
+#include <sigc++-3.0/sigc++/sigc++.h>
 
-static void add_new_tab(AdwTabView *tab_view) {
-    static int tab_count = 0;
-    tab_count++;
+#include "adw/include/adw/Application.h"
 
-    // Create the child widget for the new tab.
-    auto* label = gtk_label_new(("Hello from tab " + std::to_string(tab_count)).c_str());
-    gtk_widget_set_hexpand(GTK_WIDGET(label), TRUE);
-    gtk_widget_set_vexpand(GTK_WIDGET(label), TRUE);
+class MyApplication : public Gio::Application {
+private:
+    /** This is just a way to call Glib::init() before calling a Glib::Object ctor,
+     * so that glibmm's GQuarks are created before they are used.
+     */
+    const Glib::Class& custom_class_init();
+protected:
+  explicit MyApplication(
+      const Glib::ustring& application_id = {},
+      Gio::Application::Flags flags = Gio::Application::Flags::NONE);
+public:
+    // noncopyable
+    MyApplication(const Application&) = delete;
+    MyApplication& operator=(const Application&) = delete;
 
-    // Append the new tab and get the page object.
-    auto* page = adw_tab_view_append(tab_view, GTK_WIDGET(label));
+    explicit MyApplication(const Glib::SignalProxy<void()>& signal_activate)
+        : ObjectBase("MyApplication")
+    {}
 
-    // Set the title on the page object.
-    adw_tab_page_set_title(page, ("Tab " + std::to_string(tab_count)).c_str());
+    static Glib::RefPtr<MyApplication> create(
+        const Glib::ustring& application_id = {},
+        Gio::Application::Flags flags = Gio::Application::Flags::NONE);
+};
 
-    // Switch to the newly created tab.
-    adw_tab_view_set_selected_page(tab_view, page);
-}
-
-static void close_selected_tab(AdwTabView *tab_view) {
-    if (adw_tab_view_get_n_pages(tab_view) > 0) {
-        adw_tab_view_close_page(tab_view, adw_tab_view_get_selected_page(tab_view));
+namespace
+{
+    // Make sure the C++ locale is the same as the C locale.
+    // The first call to Glib::init() fixes this. We repeat it here just to be sure.
+    // The application program may have changed the locale settings after
+    // the first call to Glib::init(). Unlikely, but possible.
+    static void set_cxx_locale_to_c_locale()
+    {
+        try
+        {
+            // Make the C++ locale equal to the C locale.
+            std::locale::global(std::locale(std::setlocale(LC_ALL, nullptr)));
+        }
+        catch (const std::runtime_error& ex)
+        {
+            g_warning("Can't make the global C++ locale equal to the C locale.\n"
+              "   %s\n   C locale = %s\n", ex.what(), std::setlocale(LC_ALL, nullptr));
+        }
     }
 }
 
-static void on_new_tab_clicked(Gtk::Button& , AdwTabView *tab_view) {
-    add_new_tab(tab_view);
+MyApplication::MyApplication(const Glib::ustring& application_id, Gio::Application::Flags flags)
+:
+  // Mark this class as non-derived to allow C++ vfuncs to be skipped.
+  // GApplication complains about "" but allows nullptr, so we avoid passing "".
+  Glib::ObjectBase(nullptr),
+  Gio::Application(Glib::ConstructParams(custom_class_init(),
+    "application_id", Glib::c_str_or_nullptr(application_id),
+    "flags", static_cast<GApplicationFlags>(flags), nullptr))
+{
+    // gtk_init() is called by the 'startup' default signal handler when g_application_run() is called.
+    // It's also called here, to make it possible for users of gtkmm to create
+    // a window and other widgets before calling run(). (This is not recommended.)
+    // See https://bugzilla.gnome.org/show_bug.cgi?id=639925
+    adw_init();
+    set_cxx_locale_to_c_locale();
 }
 
-static void on_close_tab_clicked(Gtk::Button& , AdwTabView *tab_view) {
-    close_selected_tab(tab_view);
+Glib::RefPtr<MyApplication> MyApplication::create(
+    const Glib::ustring& application_id,
+    Gio::Application::Flags flags
+) {
+    return Glib::RefPtr<MyApplication>( new MyApplication(application_id, flags) );
 }
 
-static void on_activate(GtkApplication *app) {
-    // Adw is initialized implicitly when using AdwApplication,
-    // but if using a regular GtkApplication, you would call:
-    // adw_init();
-
-    // Create the main application window.
-    auto* window = adw_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), "C++23 AdwTabView Demo");
-    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-
-    // Create the TabView and TabBar.
-    AdwTabView* tab_view = adw_tab_view_new();
-    AdwTabBar* tab_bar = adw_tab_bar_new();
-
-    // Attach the TabBar to the TabView.
-    adw_tab_bar_set_view(tab_bar, tab_view);
-
-    // Create a header bar with buttons.
-    GtkWidget* header_bar = adw_header_bar_new();
-    auto* new_tab_button = gtk_button_new_from_icon_name("tab-new-symbolic");
-    auto* close_tab_button = gtk_button_new_from_icon_name("window-close-symbolic");
-
-    adw_header_bar_pack_start(reinterpret_cast<AdwHeaderBar*>(header_bar), new_tab_button);
-    adw_header_bar_pack_end(reinterpret_cast<AdwHeaderBar*>(header_bar), close_tab_button);
-
-    // Connect button signals.
-    g_signal_connect(new_tab_button, "clicked", G_CALLBACK(on_new_tab_clicked), tab_view);
-    g_signal_connect(close_tab_button, "clicked", G_CALLBACK(on_close_tab_clicked), tab_view);
-
-    // Arrange widgets in a main content box.
-    auto* content_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_append(GTK_BOX(content_box), header_bar);
-    gtk_box_append(GTK_BOX(content_box), reinterpret_cast<GtkWidget*>(tab_bar));
-    gtk_box_append(GTK_BOX(content_box), reinterpret_cast<GtkWidget*>(tab_view));
-
-    // Set the content of the window.
-    adw_application_window_set_content(ADW_APPLICATION_WINDOW(window), content_box);
-
-    // Add an initial tab.
-    add_new_tab(tab_view);
-
-    gtk_window_present(GTK_WINDOW(window));
+int main()
+{
+    Glib::RefPtr<MyApplication> app = MyApplication::create("nautix");
+    app->signal_activate().connect([app] {
+        // Create and show the window when the application activates
+        //auto window = Gtk::make_managed<MainWindow>();
+        //app->add_window(*window); // Add the window to the application
+        //window->present();
+    });
 }
 
-int main(int argc, char *argv[]) {
-    // The C++23 std::print function can be used for logging.
-    std::print("Starting application...\n");
 
-    // Create an AdwApplication, which automatically handles
-    // libadwaita initialization and stylesheet.
-    auto* app = adw_application_new("org.example.adwtabviewdemo", G_APPLICATION_DEFAULT_FLAGS);
 
-    g_signal_connect(app, "activate", G_CALLBACK(on_activate), nullptr);
 
-    auto status = g_application_run(G_APPLICATION(app), argc, argv);
-    g_object_unref(app);
 
-    return status;
+
+
+
+
+
+
+
+
+
+class MainWindow : public Gtk::ApplicationWindow {
+public:
+    MainWindow() {
+        set_title("Adwaita Styling with gtkmm");
+        set_default_size(800, 600);
+    }
+};
+
+int main2(int argc, char* argv[]) {
+    int result;
+/**/
+    adw_init();
+    auto gtkapp = Gtk::Application::create("org.nautix.app");
+
+    //g_application_activate
+    // ATT: New application windows must be added after the GApplication::startup signal has been emitted.
+    // Connect the activate signal
+    sigc::slot<void()> x;
+    gtkapp->signal_activate().connect([gtkapp]() {
+        // Create and show the window when the application activates
+        auto window = Gtk::make_managed<Gtk::Window>();
+        gtkapp->add_window(*window); // Add the window to the application
+        window->present();
+    });
+    result = gtkapp->run(argc, argv);
+/**
+    auto app = adw::Application::create("org.nautix.app");
+    app->signal_activate().connect([gtkapp]() {
+        // Create and show the window when the application activates
+        auto window = Gtk::make_managed<MainWindow>();
+        //app->add_window(*window); // Add the window to the application
+        window->present();
+    });
+    result = app->run(argc, argv);
+**/
+    return result;
 }
+

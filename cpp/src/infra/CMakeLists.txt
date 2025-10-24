@@ -1,6 +1,6 @@
 add_library(infra STATIC)
 
-# --- Fontes ---
+# Sources
 file(GLOB_RECURSE INFRA_SOURCES
         CONFIGURE_DEPENDS
         "src/*.cpp"

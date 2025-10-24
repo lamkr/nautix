@@ -1,13 +1,13 @@
 add_library(application STATIC)
 
-# --- Fontes ---
+# SOURCES
 file(GLOB_RECURSE APP_SOURCES
-        CONFIGURE_DEPENDS
+    CONFIGURE_DEPENDS
         "src/*.cpp"
         "src/**/*.cpp"
 )
 file(GLOB_RECURSE APP_HEADERS
-        CONFIGURE_DEPENDS
+    CONFIGURE_DEPENDS
         "include/*.h"
         "include/**/*.h"
 )
@@ -20,7 +20,6 @@ target_sources(application
     PUBLIC FILE_SET HEADERS FILES ${APP_HEADERS}
 )
 
-# --- Diretórios de Include ---
 target_include_directories(application
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

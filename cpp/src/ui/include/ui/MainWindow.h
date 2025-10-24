@@ -14,6 +14,7 @@ namespace nautix::ui {
 
         void initialize_window();
         void build_content();
+        void build_content_();
         Gtk::HeaderBar* create_header_bar();
         void add_new_tab_button(Gtk::HeaderBar* header_bar);
 

@@ -1,6 +1,6 @@
+add_subdirectory(adw)
 add_subdirectory(common)
 add_subdirectory(application)
 add_subdirectory(domain)
 add_subdirectory(infra)
 add_subdirectory(ui)
-

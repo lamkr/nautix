@@ -62,9 +62,13 @@ add_executable(nautix
 	src/main.cpp
 )
 
+include_directories(${GTKMM_INCLUDE_DIRS})
+link_directories(${GTKMM_LIBRARY_DIRS})
+
 target_link_libraries(nautix
     PRIVATE
-    	ui
+        adw
+        ui
         ${GTKMM_LIBRARIES}
         ${LIBADWAITA_LIBRARIES}
         ${Gettext_LIBRARIES}
@@ -72,13 +76,9 @@ target_link_libraries(nautix
 
 target_include_directories(nautix
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/ui/include
-        ${LIBADWAITA_INCLUDE_DIRS}
-        ${GTKMM_INCLUDE_DIRS}
-        ${Gettext_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}/src/adw/include
+    ${CMAKE_SOURCE_DIR}/src/ui/include
+    ${LIBADWAITA_INCLUDE_DIRS}
+    ${GTKMM_INCLUDE_DIRS}
+    ${Gettext_INCLUDE_DIRS}
 )
-#
-#link_directories(
-#    ${GTKMM_LIBRARY_DIRS}
-#)
-#
